@@ -3,6 +3,7 @@ import { DailySummary } from "@/components/dashboard/daily-summary";
 import { MacroRings } from "@/components/dashboard/macro-rings";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
 import { QuickRelog } from "@/components/food-log/quick-relog";
+import { HowItWorksDialog } from "@/components/help/how-it-works-dialog";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -82,7 +83,10 @@ export default async function DashboardPage() {
       <InstallPrompt />
 
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Today</h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-semibold">Today</h1>
+          <HowItWorksDialog />
+        </div>
         <div className="flex gap-2">
           <Link href="/gallery">
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Gallery</Button>
