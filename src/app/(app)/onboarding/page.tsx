@@ -108,7 +108,7 @@ export default function OnboardingPage() {
                 onClick={() => setGoalType(opt.value)}
                 className={`w-full rounded-lg border p-3 text-left transition-colors ${
                   goalType === opt.value
-                    ? "border-primary bg-primary/5"
+                    ? "border-[#6366f1]/50 bg-[#6366f1]/10"
                     : "border-border hover:bg-muted/50"
                 }`}
               >
@@ -215,7 +215,7 @@ export default function OnboardingPage() {
                 onClick={() => setActivityLevel(opt.value)}
                 className={`w-full rounded-lg border p-3 text-left transition-colors ${
                   activityLevel === opt.value
-                    ? "border-primary bg-primary/5"
+                    ? "border-[#6366f1]/50 bg-[#6366f1]/10"
                     : "border-border hover:bg-muted/50"
                 }`}
               >

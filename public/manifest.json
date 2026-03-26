@@ -4,8 +4,8 @@
   "description": "AI-powered nutrition tracking",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#1a1625",
+  "theme_color": "#1a1625",
   "orientation": "portrait",
   "icons": [
     {

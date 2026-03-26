@@ -124,25 +124,25 @@ export default function TrendsPage() {
             <ResponsiveContainer width="100%" height={280}>
               {view === "week" ? (
                 <BarChart data={weekData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} width={45} />
-                  <Tooltip />
-                  <Bar dataKey="calories" fill="#3b82f6" name="Calories" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} stroke="rgba(255,255,255,0.06)" />
+                  <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} width={45} stroke="rgba(255,255,255,0.06)" />
+                  <Tooltip contentStyle={{ backgroundColor: "#1e1b2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", color: "#e5e7eb" }} />
+                  <Bar dataKey="calories" fill="#818cf8" name="Calories" radius={[4, 4, 0, 0]} />
                   {targetCalories && (
-                    <Bar dataKey={() => targetCalories} fill="transparent" stroke="#ef4444" strokeDasharray="4 4" name="Target" />
+                    <Bar dataKey={() => targetCalories} fill="transparent" stroke="#f472b6" strokeDasharray="4 4" name="Target" />
                   )}
                 </BarChart>
               ) : (
                 <BarChart data={weekData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} width={35} />
-                  <Tooltip />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} stroke="rgba(255,255,255,0.06)" />
+                  <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} width={35} stroke="rgba(255,255,255,0.06)" />
+                  <Tooltip contentStyle={{ backgroundColor: "#1e1b2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", color: "#e5e7eb" }} />
                   <Legend />
-                  <Bar dataKey="protein" fill="#22c55e" name="Protein (g)" stackId="macros" />
-                  <Bar dataKey="carbs" fill="#eab308" name="Carbs (g)" stackId="macros" />
-                  <Bar dataKey="fat" fill="#ef4444" name="Fat (g)" stackId="macros" />
+                  <Bar dataKey="protein" fill="#5eead4" name="Protein (g)" stackId="macros" />
+                  <Bar dataKey="carbs" fill="#fcd34d" name="Carbs (g)" stackId="macros" />
+                  <Bar dataKey="fat" fill="#f472b6" name="Fat (g)" stackId="macros" />
                 </BarChart>
               )}
             </ResponsiveContainer>

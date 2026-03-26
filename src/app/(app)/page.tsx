@@ -85,13 +85,13 @@ export default async function DashboardPage() {
         <h1 className="text-xl font-semibold">Today</h1>
         <div className="flex gap-2">
           <Link href="/gallery">
-            <Button variant="ghost" size="sm">Gallery</Button>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Gallery</Button>
           </Link>
           <Link href="/trends">
             <Button variant="outline" size="sm">Trends</Button>
           </Link>
           <Link href="/log/new">
-            <Button size="sm">Log Food</Button>
+            <Button size="sm" className="bg-[#6366f1] hover:bg-[#5558e6] text-white">Log Food</Button>
           </Link>
         </div>
       </div>

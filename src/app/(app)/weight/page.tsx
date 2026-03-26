@@ -230,27 +230,28 @@ export default function WeightPage() {
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#9ca3af" }} stroke="rgba(255,255,255,0.06)" />
                 <YAxis
                   domain={["auto", "auto"]}
-                  tick={{ fontSize: 11 }}
+                  tick={{ fontSize: 11, fill: "#9ca3af" }}
                   width={40}
+                  stroke="rgba(255,255,255,0.06)"
                 />
-                <Tooltip />
+                <Tooltip contentStyle={{ backgroundColor: "#1e1b2e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "8px", color: "#e5e7eb" }} />
                 <Legend />
                 <Line
                   type="monotone"
                   dataKey="raw"
-                  stroke="#94a3b8"
+                  stroke="#5eead4"
                   strokeWidth={1}
-                  dot={{ r: 3 }}
+                  dot={{ r: 3, fill: "#5eead4" }}
                   name={`Raw (${unit})`}
                 />
                 <Line
                   type="monotone"
                   dataKey="trend"
-                  stroke="#3b82f6"
+                  stroke="#818cf8"
                   strokeWidth={2}
                   dot={false}
                   name={`Trend (${unit})`}

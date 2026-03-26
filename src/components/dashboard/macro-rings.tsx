@@ -66,9 +66,9 @@ export function MacroRings({
 }: MacroRingsProps) {
   return (
     <div className="flex items-center justify-around py-2">
-      <Ring value={protein} target={targetProtein} label="Protein" color="#22c55e" />
-      <Ring value={carbs} target={targetCarbs} label="Carbs" color="#eab308" />
-      <Ring value={fat} target={targetFat} label="Fat" color="#ef4444" />
+      <Ring value={protein} target={targetProtein} label="Protein" color="#5eead4" />
+      <Ring value={carbs} target={targetCarbs} label="Carbs" color="#fcd34d" />
+      <Ring value={fat} target={targetFat} label="Fat" color="#f472b6" />
     </div>
   );
 }

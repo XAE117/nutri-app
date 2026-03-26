@@ -47,7 +47,7 @@ export default function LoginPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">NutriLens</CardTitle>
+        <CardTitle className="text-2xl bg-gradient-to-r from-[#818cf8] to-[#f472b6] bg-clip-text text-transparent">NutriLens</CardTitle>
         <CardDescription>Sign in to your account</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>

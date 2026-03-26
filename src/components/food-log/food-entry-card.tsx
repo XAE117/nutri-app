@@ -64,7 +64,7 @@ export function FoodEntryCard({
                 {showConfidenceWarning && (
                   <Badge
                     variant="outline"
-                    className="border-orange-300 bg-orange-50 text-xs text-orange-700"
+                    className="border-amber-400/50 bg-amber-500/10 text-xs text-amber-300"
                   >
                     Low confidence
                   </Badge>

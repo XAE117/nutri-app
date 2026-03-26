@@ -13,6 +13,13 @@ interface DailySummaryProps {
   targetFat?: number;
 }
 
+const macroColors: Record<string, string> = {
+  Protein: "#5eead4",
+  Carbs: "#fcd34d",
+  Fat: "#f472b6",
+  Fiber: "#86efac",
+};
+
 function MacroRow({
   label,
   value,
@@ -25,6 +32,7 @@ function MacroRow({
   unit?: string;
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : null;
+  const barColor = macroColors[label] || "#818cf8";
 
   return (
     <div className="space-y-1">
@@ -41,8 +49,8 @@ function MacroRow({
       {target && (
         <div className="h-1.5 w-full rounded-full bg-muted">
           <div
-            className="h-1.5 rounded-full bg-primary transition-all"
-            style={{ width: `${pct}%` }}
+            className="h-1.5 rounded-full transition-all"
+            style={{ width: `${pct}%`, backgroundColor: barColor }}
           />
         </div>
       )}
@@ -79,8 +87,8 @@ export function DailySummary({
           {targetCalories && (
             <div className="mx-auto mt-2 h-2 w-full max-w-xs rounded-full bg-muted">
               <div
-                className="h-2 rounded-full bg-primary transition-all"
-                style={{ width: `${calPct}%` }}
+                className="h-2 rounded-full transition-all"
+                style={{ width: `${calPct}%`, background: "linear-gradient(90deg, #818cf8, #6366f1)" }}
               />
             </div>
           )}

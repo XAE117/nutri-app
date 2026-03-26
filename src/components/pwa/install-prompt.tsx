@@ -35,7 +35,7 @@ export function InstallPrompt() {
   }
 
   return (
-    <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-3">
+    <div className="flex items-center justify-between rounded-lg border border-[#6366f1]/20 bg-[#6366f1]/5 p-3">
       <p className="text-sm">Install NutriLens for quick access</p>
       <div className="flex gap-2">
         <Button size="sm" variant="ghost" onClick={() => setDismissed(true)}>
