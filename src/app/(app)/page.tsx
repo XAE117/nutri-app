@@ -84,6 +84,9 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Today</h1>
         <div className="flex gap-2">
+          <Link href="/gallery">
+            <Button variant="ghost" size="sm">Gallery</Button>
+          </Link>
           <Link href="/trends">
             <Button variant="outline" size="sm">Trends</Button>
           </Link>

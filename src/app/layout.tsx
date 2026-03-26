@@ -61,7 +61,10 @@ function ServiceWorkerRegistration() {
         __html: `
           if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js').catch(() => {});
+              navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                // Check for updates on every page load (iOS 7-day cache eviction workaround)
+                reg.update();
+              }).catch(() => {});
             });
           }
         `,
