@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { analyzeFood } from "@/lib/ai/vision";
+import { getSemanticState } from "@/lib/ai/semantic-state";
+import { getRecentEpisodes, createMealEpisode, generateMealSummary } from "@/lib/ai/memory";
 
 export async function POST(request: Request) {
   const supabase = await createClient();
@@ -47,8 +49,22 @@ export async function POST(request: Request) {
       // Continue anyway — photo storage is nice-to-have, not blocking
     }
 
-    // Analyze with Claude Vision
-    const { data, error, raw } = await analyzeFood(base64, mediaType);
+    // Fetch AI memory context (non-blocking — skip if fails)
+    let semanticState, pastEpisodes;
+    try {
+      [semanticState, pastEpisodes] = await Promise.all([
+        getSemanticState(supabase, user.id),
+        getRecentEpisodes(supabase, user.id, 5),
+      ]);
+    } catch {
+      // Memory is optional — proceed without it
+    }
+
+    // Analyze with Claude Vision (with memory context)
+    const { data, error, raw } = await analyzeFood(base64, mediaType, {
+      semanticState,
+      pastEpisodes,
+    });
 
     if (error || !data) {
       return NextResponse.json(
@@ -84,6 +100,25 @@ export async function POST(request: Request) {
         { status: 500 }
       );
     }
+
+    // Create memory episode (fire and forget)
+    createMealEpisode(
+      supabase,
+      user.id,
+      generateMealSummary(
+        data.description,
+        data.total_calories,
+        data.total_protein_g,
+        data.meal_type_guess,
+        data.confidence
+      ),
+      {
+        calories: data.total_calories,
+        protein_g: data.total_protein_g,
+        meal_type: data.meal_type_guess,
+        items: data.items.map((i) => i.name),
+      }
+    ).catch((err) => console.error("Memory episode error:", err));
 
     return NextResponse.json({ entry: logEntry, analysis: data });
   } catch (err) {

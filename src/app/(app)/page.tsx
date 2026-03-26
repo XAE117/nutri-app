@@ -1,8 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { DailySummary } from "@/components/dashboard/daily-summary";
+import { MacroRings } from "@/components/dashboard/macro-rings";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
+import { QuickRelog } from "@/components/food-log/quick-relog";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -10,12 +14,24 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Check onboarding
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("onboarding_complete")
+    .eq("id", user!.id)
+    .single();
+
+  if (profile && profile.onboarding_complete === false) {
+    redirect("/onboarding");
+  }
+
   // Get today's date range
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
 
-  const [entriesRes, goalsRes] = await Promise.all([
+  // Parallel data fetch
+  const [entriesRes, goalsRes, recentRes] = await Promise.all([
     supabase
       .from("food_logs")
       .select("*")
@@ -28,10 +44,27 @@ export default async function DashboardPage() {
       .select("target_calories, target_protein_g, target_carbs_g, target_fat_g")
       .eq("user_id", user!.id)
       .single(),
+    // Recent unique meals for quick re-log (last 7 days, deduplicated by description)
+    supabase
+      .from("food_logs")
+      .select("id, description, calories, protein_g, carbs_g, fat_g, fiber_g, meal_type, items, source")
+      .eq("user_id", user!.id)
+      .lt("logged_at", startOfDay)
+      .order("logged_at", { ascending: false })
+      .limit(20),
   ]);
 
   const logs = entriesRes.data ?? [];
   const goals = goalsRes.data;
+  const recentAll = recentRes.data ?? [];
+
+  // Deduplicate recent meals by description
+  const seen = new Set<string>();
+  const recentMeals = recentAll.filter((m) => {
+    if (!m.description || seen.has(m.description)) return false;
+    seen.add(m.description);
+    return true;
+  }).slice(0, 5);
 
   const totals = logs.reduce(
     (acc, entry) => ({
@@ -45,7 +78,9 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
+      <InstallPrompt />
+
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Today</h1>
         <div className="flex gap-2">
@@ -71,8 +106,23 @@ export default async function DashboardPage() {
         targetFat={goals?.target_fat_g ?? undefined}
       />
 
+      {/* Macro ring charts when goals exist */}
+      {(goals?.target_protein_g || goals?.target_carbs_g || goals?.target_fat_g) && (
+        <MacroRings
+          protein={totals.protein}
+          carbs={totals.carbs}
+          fat={totals.fat}
+          targetProtein={goals.target_protein_g ?? undefined}
+          targetCarbs={goals.target_carbs_g ?? undefined}
+          targetFat={goals.target_fat_g ?? undefined}
+        />
+      )}
+
+      {/* Quick re-log from recent meals */}
+      <QuickRelog meals={recentMeals} />
+
       {logs.length === 0 ? (
-        <div className="py-12 text-center">
+        <div className="py-8 text-center">
           <p className="text-muted-foreground">No entries yet today.</p>
           <Link href="/log/new/photo">
             <Button variant="outline" className="mt-3">

@@ -310,6 +310,37 @@ export default function SettingsPage() {
         {saving ? "Saving..." : saved ? "Saved" : "Save Settings"}
       </Button>
 
+      {/* Data Export */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Export Data</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <a href="/api/export?type=food_logs&format=csv" download>
+              <Button variant="outline" size="sm" className="w-full">
+                Food Logs (CSV)
+              </Button>
+            </a>
+            <a href="/api/export?type=weight_logs&format=csv" download>
+              <Button variant="outline" size="sm" className="w-full">
+                Weight (CSV)
+              </Button>
+            </a>
+            <a href="/api/export?type=food_logs&format=json" download>
+              <Button variant="outline" size="sm" className="w-full">
+                Food Logs (JSON)
+              </Button>
+            </a>
+            <a href="/api/export?type=weight_logs&format=json" download>
+              <Button variant="outline" size="sm" className="w-full">
+                Weight (JSON)
+              </Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* About */}
       <Card>
         <CardHeader>

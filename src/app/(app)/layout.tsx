@@ -1,12 +1,17 @@
 import { BottomNav } from "@/components/nav/bottom-nav";
+import { OfflineIndicator } from "@/components/pwa/offline-indicator";
+import { ErrorBoundary } from "@/components/error/error-boundary";
 
 export const dynamic = "force-dynamic";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mx-auto w-full max-w-md pb-20">
-      <main className="px-4 py-4">{children}</main>
-      <BottomNav />
-    </div>
+    <ErrorBoundary>
+      <OfflineIndicator />
+      <div className="mx-auto w-full max-w-md pb-20">
+        <main className="px-4 py-4">{children}</main>
+        <BottomNav />
+      </div>
+    </ErrorBoundary>
   );
 }
