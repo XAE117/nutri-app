@@ -17,6 +17,7 @@ export async function POST(request: Request) {
   try {
     const formData = await request.formData();
     const file = formData.get("photo") as File | null;
+    const userHint = (formData.get("hint") as string) || undefined;
 
     if (!file) {
       return NextResponse.json({ error: "No photo provided" }, { status: 400 });
@@ -60,10 +61,11 @@ export async function POST(request: Request) {
       // Memory is optional — proceed without it
     }
 
-    // Analyze with Claude Vision (with memory context)
+    // Analyze with Claude Vision (with memory context + user hint)
     const { data, error, raw } = await analyzeFood(base64, mediaType, {
       semanticState,
       pastEpisodes,
+      userHint,
     });
 
     if (error || !data) {

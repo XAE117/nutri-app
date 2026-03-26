@@ -11,6 +11,7 @@ const anthropic = new Anthropic({
 interface AnalyzeOptions {
   semanticState?: SemanticState;
   pastEpisodes?: MemoryEpisode[];
+  userHint?: string;
 }
 
 export async function analyzeFood(
@@ -58,7 +59,9 @@ export async function analyzeFood(
             },
             {
               type: "text",
-              text: "Analyze this food photo and provide a detailed nutritional breakdown.",
+              text: options?.userHint
+                ? `Analyze this food photo and provide a detailed nutritional breakdown. The user describes this as: "${options.userHint}"`
+                : "Analyze this food photo and provide a detailed nutritional breakdown.",
             },
           ],
         },
