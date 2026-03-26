@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { CalorieGauge } from "./calorie-gauge";
 
 interface DailySummaryProps {
   calories: number;
@@ -77,22 +78,22 @@ export function DailySummary({
   return (
     <Card>
       <CardContent className="space-y-4 p-4">
-        {/* Calories hero */}
-        <div className="text-center">
-          <p className="text-3xl font-bold">{Math.round(calories)}</p>
-          <p className="text-sm text-muted-foreground">
-            calories{targetCalories ? ` / ${targetCalories}` : ""}{" "}
-            · {entryCount} {entryCount === 1 ? "entry" : "entries"}
-          </p>
-          {targetCalories && (
-            <div className="mx-auto mt-2 h-2 w-full max-w-xs rounded-full bg-muted">
-              <div
-                className="h-2 rounded-full transition-all"
-                style={{ width: `${calPct}%`, background: "linear-gradient(90deg, #818cf8, #6366f1)" }}
-              />
-            </div>
-          )}
-        </div>
+        {/* Calories gauge */}
+        {targetCalories ? (
+          <div>
+            <CalorieGauge calories={calories} target={targetCalories} />
+            <p className="text-center text-xs text-muted-foreground mt-1">
+              {entryCount} {entryCount === 1 ? "entry" : "entries"} today
+            </p>
+          </div>
+        ) : (
+          <div className="text-center">
+            <p className="text-3xl font-bold">{Math.round(calories)}</p>
+            <p className="text-sm text-muted-foreground">
+              calories · {entryCount} {entryCount === 1 ? "entry" : "entries"}
+            </p>
+          </div>
+        )}
 
         {/* Macro breakdown */}
         <div className="space-y-2">
