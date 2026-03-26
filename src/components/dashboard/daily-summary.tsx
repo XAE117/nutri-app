@@ -1,3 +1,5 @@
+import { Card, CardContent } from "@/components/ui/card";
+
 interface DailySummaryProps {
   calories: number;
   protein: number;
@@ -5,6 +7,47 @@ interface DailySummaryProps {
   fat: number;
   fiber: number;
   entryCount: number;
+  targetCalories?: number;
+  targetProtein?: number;
+  targetCarbs?: number;
+  targetFat?: number;
+}
+
+function MacroRow({
+  label,
+  value,
+  target,
+  unit = "g",
+}: {
+  label: string;
+  value: number;
+  target?: number;
+  unit?: string;
+}) {
+  const pct = target ? Math.min(100, Math.round((value / target) * 100)) : null;
+
+  return (
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-muted-foreground">{label}</span>
+        <span className="font-medium">
+          {Math.round(value)}
+          {unit}
+          {target ? (
+            <span className="text-muted-foreground"> / {target}{unit}</span>
+          ) : null}
+        </span>
+      </div>
+      {target && (
+        <div className="h-1.5 w-full rounded-full bg-muted">
+          <div
+            className="h-1.5 rounded-full bg-primary transition-all"
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DailySummary({
@@ -14,44 +57,43 @@ export function DailySummary({
   fat,
   fiber,
   entryCount,
+  targetCalories,
+  targetProtein,
+  targetCarbs,
+  targetFat,
 }: DailySummaryProps) {
-  return (
-    <div className="space-y-4">
-      {/* Main calorie display */}
-      <div className="text-center">
-        <p className="text-4xl font-bold tabular-nums">{Math.round(calories)}</p>
-        <p className="text-sm text-muted-foreground">
-          calories today &middot; {entryCount} {entryCount === 1 ? "entry" : "entries"}
-        </p>
-      </div>
+  const calPct = targetCalories
+    ? Math.min(100, Math.round((calories / targetCalories) * 100))
+    : null;
 
-      {/* Macro breakdown */}
-      <div className="grid grid-cols-4 gap-2">
-        <MacroItem label="Protein" value={protein} unit="g" />
-        <MacroItem label="Carbs" value={carbs} unit="g" />
-        <MacroItem label="Fat" value={fat} unit="g" />
-        <MacroItem label="Fiber" value={fiber} unit="g" />
-      </div>
-    </div>
-  );
-}
-
-function MacroItem({
-  label,
-  value,
-  unit,
-}: {
-  label: string;
-  value: number;
-  unit: string;
-}) {
   return (
-    <div className="text-center rounded-lg bg-muted/50 p-2">
-      <p className="text-lg font-semibold tabular-nums">
-        {Math.round(value)}
-        <span className="text-xs font-normal text-muted-foreground">{unit}</span>
-      </p>
-      <p className="text-xs text-muted-foreground">{label}</p>
-    </div>
+    <Card>
+      <CardContent className="space-y-4 p-4">
+        {/* Calories hero */}
+        <div className="text-center">
+          <p className="text-3xl font-bold">{Math.round(calories)}</p>
+          <p className="text-sm text-muted-foreground">
+            calories{targetCalories ? ` / ${targetCalories}` : ""}{" "}
+            · {entryCount} {entryCount === 1 ? "entry" : "entries"}
+          </p>
+          {targetCalories && (
+            <div className="mx-auto mt-2 h-2 w-full max-w-xs rounded-full bg-muted">
+              <div
+                className="h-2 rounded-full bg-primary transition-all"
+                style={{ width: `${calPct}%` }}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Macro breakdown */}
+        <div className="space-y-2">
+          <MacroRow label="Protein" value={protein} target={targetProtein} />
+          <MacroRow label="Carbs" value={carbs} target={targetCarbs} />
+          <MacroRow label="Fat" value={fat} target={targetFat} />
+          <MacroRow label="Fiber" value={fiber} />
+        </div>
+      </CardContent>
+    </Card>
   );
 }

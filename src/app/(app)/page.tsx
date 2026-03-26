@@ -10,20 +10,28 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Get today's date in user's local timezone (server renders in UTC, so we use date range)
+  // Get today's date range
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
 
-  const { data: entries } = await supabase
-    .from("food_logs")
-    .select("*")
-    .eq("user_id", user!.id)
-    .gte("logged_at", startOfDay)
-    .lt("logged_at", endOfDay)
-    .order("logged_at", { ascending: false });
+  const [entriesRes, goalsRes] = await Promise.all([
+    supabase
+      .from("food_logs")
+      .select("*")
+      .eq("user_id", user!.id)
+      .gte("logged_at", startOfDay)
+      .lt("logged_at", endOfDay)
+      .order("logged_at", { ascending: false }),
+    supabase
+      .from("user_goals")
+      .select("target_calories, target_protein_g, target_carbs_g, target_fat_g")
+      .eq("user_id", user!.id)
+      .single(),
+  ]);
 
-  const logs = entries ?? [];
+  const logs = entriesRes.data ?? [];
+  const goals = goalsRes.data;
 
   const totals = logs.reduce(
     (acc, entry) => ({
@@ -40,9 +48,14 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Today</h1>
-        <Link href="/log/new">
-          <Button size="sm">Log Food</Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/trends">
+            <Button variant="outline" size="sm">Trends</Button>
+          </Link>
+          <Link href="/log/new">
+            <Button size="sm">Log Food</Button>
+          </Link>
+        </div>
       </div>
 
       <DailySummary
@@ -52,6 +65,10 @@ export default async function DashboardPage() {
         fat={totals.fat}
         fiber={totals.fiber}
         entryCount={logs.length}
+        targetCalories={goals?.target_calories ?? undefined}
+        targetProtein={goals?.target_protein_g ?? undefined}
+        targetCarbs={goals?.target_carbs_g ?? undefined}
+        targetFat={goals?.target_fat_g ?? undefined}
       />
 
       {logs.length === 0 ? (
