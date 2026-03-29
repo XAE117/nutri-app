@@ -1,4 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { CalorieGauge } from "./calorie-gauge";
 
 interface DailySummaryProps {
@@ -76,7 +75,7 @@ export function DailySummary({
     : null;
 
   return (
-    <div className="relative isolate">
+    <div className="relative isolate mt-4">
       {/* Aurora glow */}
       <div
         aria-hidden="true"
@@ -138,35 +137,33 @@ export function DailySummary({
         />
       </div>
 
-      <Card className="relative ring-0 border-0">
-        <CardContent className="space-y-4 p-4">
-          {/* Calories gauge */}
-          {targetCalories ? (
-            <div>
-              <CalorieGauge calories={calories} target={targetCalories} />
-              <p className="text-center text-xs text-muted-foreground mt-1">
-                {entryCount} {entryCount === 1 ? "entry" : "entries"} today
-              </p>
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="text-3xl font-bold">{Math.round(calories)}</p>
-              <p className="text-sm text-muted-foreground">
-                calories · {entryCount}{" "}
-                {entryCount === 1 ? "entry" : "entries"}
-              </p>
-            </div>
-          )}
-
-          {/* Macro breakdown */}
-          <div className="space-y-2">
-            <MacroRow label="Protein" value={protein} target={targetProtein} />
-            <MacroRow label="Carbs" value={carbs} target={targetCarbs} />
-            <MacroRow label="Fat" value={fat} target={targetFat} />
-            <MacroRow label="Fiber" value={fiber} />
+      <div className="relative space-y-4 px-2 py-4">
+        {/* Calories gauge */}
+        {targetCalories ? (
+          <div>
+            <CalorieGauge calories={calories} target={targetCalories} />
+            <p className="text-center text-xs text-muted-foreground mt-1">
+              {entryCount} {entryCount === 1 ? "entry" : "entries"} today
+            </p>
           </div>
-        </CardContent>
-      </Card>
+        ) : (
+          <div className="text-center">
+            <p className="text-3xl font-bold">{Math.round(calories)}</p>
+            <p className="text-sm text-muted-foreground">
+              calories · {entryCount}{" "}
+              {entryCount === 1 ? "entry" : "entries"}
+            </p>
+          </div>
+        )}
+
+        {/* Macro breakdown */}
+        <div className="space-y-2">
+          <MacroRow label="Protein" value={protein} target={targetProtein} />
+          <MacroRow label="Carbs" value={carbs} target={targetCarbs} />
+          <MacroRow label="Fat" value={fat} target={targetFat} />
+          <MacroRow label="Fiber" value={fiber} />
+        </div>
+      </div>
     </div>
   );
 }

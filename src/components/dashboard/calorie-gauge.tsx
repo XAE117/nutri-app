@@ -8,7 +8,8 @@ interface CalorieGaugeProps {
 }
 
 export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
-  const [animatedAngle, setAnimatedAngle] = useState(-90);
+  const [animatedAngle, setAnimatedAngle] = useState(-180);
+  const [phase, setPhase] = useState<"idle" | "max" | "settle">("idle");
 
   // Gauge geometry
   const cx = 150;
@@ -23,10 +24,15 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
   const clamped = Math.min(calories, max);
   const targetAngle = startAngle + (clamped / max) * sweep;
 
-  // Animate needle on mount / value change
+  // Animate: slam to max first, then settle to actual value
   useEffect(() => {
-    const timeout = setTimeout(() => setAnimatedAngle(targetAngle), 50);
-    return () => clearTimeout(timeout);
+    setPhase("max");
+    setAnimatedAngle(endAngle); // slam to max (right side)
+    const t = setTimeout(() => {
+      setPhase("settle");
+      setAnimatedAngle(targetAngle);
+    }, 700);
+    return () => clearTimeout(t);
   }, [targetAngle]);
 
   // Generate tick marks
@@ -118,7 +124,14 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
             stroke={overTarget ? "#f87171" : "#818cf8"}
             strokeWidth="3"
             strokeLinecap="round"
-            className="transition-all duration-700 ease-out"
+            className="transition-all"
+            style={{
+              transitionDuration: phase === "max" ? "600ms" : "1200ms",
+              transitionTimingFunction:
+                phase === "max"
+                  ? "cubic-bezier(0.22, 1, 0.36, 1)"
+                  : "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            }}
           />
         )}
 
@@ -170,7 +183,14 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
           stroke={overTarget ? "#f87171" : "#f59e0b"}
           strokeWidth="2"
           strokeLinecap="round"
-          className="transition-all duration-700 ease-out"
+          className="transition-all"
+          style={{
+            transitionDuration: phase === "max" ? "600ms" : "1200ms",
+            transitionTimingFunction:
+              phase === "max"
+                ? "cubic-bezier(0.22, 1, 0.36, 1)"
+                : "cubic-bezier(0.34, 1.56, 0.64, 1)",
+          }}
         />
 
         {/* Needle pivot */}

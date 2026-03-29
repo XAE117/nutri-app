@@ -18,14 +18,14 @@ export function HowItWorksDialog() {
       <DialogTrigger
         render={
           <Button
-            variant="ghost"
-            size="icon-sm"
-            className="text-muted-foreground"
+            variant="outline"
+            size="sm"
+            className="text-muted-foreground text-xs gap-1"
           />
         }
       >
-        <HelpCircle className="size-4" />
-        <span className="sr-only">How this app works</span>
+        <HelpCircle className="size-3.5" />
+        Guide
       </DialogTrigger>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
