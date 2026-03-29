@@ -80,14 +80,14 @@ export function DailySummary({
       {/* Aurora glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-3 -z-10"
+        className="pointer-events-none absolute -inset-5 -z-10"
       >
         <div
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
               "radial-gradient(ellipse 70% 50% at 25% 40%, var(--glow-indigo), transparent 70%)",
-            filter: "blur(36px)",
+            filter: "blur(24px)",
             animation: "aurora-drift-1 8s ease-in-out infinite",
           }}
         />
@@ -96,7 +96,7 @@ export function DailySummary({
           style={{
             background:
               "radial-gradient(ellipse 50% 65% at 75% 25%, var(--glow-pink), transparent 70%)",
-            filter: "blur(36px)",
+            filter: "blur(24px)",
             animation: "aurora-drift-2 11s ease-in-out infinite",
           }}
         />
@@ -105,7 +105,7 @@ export function DailySummary({
           style={{
             background:
               "radial-gradient(ellipse 55% 45% at 50% 80%, var(--glow-teal), transparent 70%)",
-            filter: "blur(36px)",
+            filter: "blur(24px)",
             animation: "aurora-drift-3 13s ease-in-out infinite",
           }}
         />
@@ -114,7 +114,7 @@ export function DailySummary({
           style={{
             background:
               "radial-gradient(ellipse 45% 55% at 20% 70%, var(--glow-amber), transparent 70%)",
-            filter: "blur(36px)",
+            filter: "blur(24px)",
             animation: "aurora-drift-4 9s ease-in-out infinite",
           }}
         />
@@ -123,13 +123,13 @@ export function DailySummary({
           style={{
             background:
               "radial-gradient(ellipse 60% 50% at 80% 65%, var(--glow-green), transparent 70%)",
-            filter: "blur(36px)",
+            filter: "blur(24px)",
             animation: "aurora-drift-5 15s ease-in-out infinite",
           }}
         />
         {/* Grain texture on glow */}
         <div
-          className="absolute inset-0 rounded-2xl opacity-30 mix-blend-overlay"
+          className="absolute inset-0 rounded-2xl opacity-50 mix-blend-overlay"
           style={{
             backgroundImage:
               "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
@@ -138,7 +138,7 @@ export function DailySummary({
         />
       </div>
 
-      <Card className="relative">
+      <Card className="relative ring-0 border-0">
         <CardContent className="space-y-4 p-4">
           {/* Calories gauge */}
           {targetCalories ? (
