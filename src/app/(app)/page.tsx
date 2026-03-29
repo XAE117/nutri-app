@@ -1,10 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { DailySummary } from "@/components/dashboard/daily-summary";
+import { DashboardActions } from "@/components/dashboard/dashboard-actions";
+import { JaelModeToggle } from "@/components/dashboard/jael-mode-toggle";
 import { MacroRings } from "@/components/dashboard/macro-rings";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
 import { QuickRelog } from "@/components/food-log/quick-relog";
 import { HowItWorksDialog } from "@/components/help/how-it-works-dialog";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { JaelHide } from "@/components/providers/jael-mode-provider";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -86,18 +89,9 @@ export default async function DashboardPage() {
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-semibold">Today</h1>
           <HowItWorksDialog />
+          <JaelModeToggle />
         </div>
-        <div className="flex gap-2">
-          <Link href="/gallery">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">Gallery</Button>
-          </Link>
-          <Link href="/trends">
-            <Button variant="outline" size="sm">Trends</Button>
-          </Link>
-          <Link href="/log/new">
-            <Button size="sm" className="bg-[#6366f1] hover:bg-[#5558e6] text-white">Log Food</Button>
-          </Link>
-        </div>
+        <DashboardActions />
       </div>
 
       <DailySummary
@@ -114,19 +108,23 @@ export default async function DashboardPage() {
       />
 
       {/* Macro ring charts when goals exist */}
-      {(goals?.target_protein_g || goals?.target_carbs_g || goals?.target_fat_g) && (
-        <MacroRings
-          protein={totals.protein}
-          carbs={totals.carbs}
-          fat={totals.fat}
-          targetProtein={goals.target_protein_g ?? undefined}
-          targetCarbs={goals.target_carbs_g ?? undefined}
-          targetFat={goals.target_fat_g ?? undefined}
-        />
-      )}
+      <JaelHide>
+        {(goals?.target_protein_g || goals?.target_carbs_g || goals?.target_fat_g) && (
+          <MacroRings
+            protein={totals.protein}
+            carbs={totals.carbs}
+            fat={totals.fat}
+            targetProtein={goals.target_protein_g ?? undefined}
+            targetCarbs={goals.target_carbs_g ?? undefined}
+            targetFat={goals.target_fat_g ?? undefined}
+          />
+        )}
+      </JaelHide>
 
       {/* Quick re-log from recent meals */}
-      <QuickRelog meals={recentMeals} />
+      <JaelHide>
+        <QuickRelog meals={recentMeals} />
+      </JaelHide>
 
       {logs.length === 0 ? (
         <div className="py-8 text-center">

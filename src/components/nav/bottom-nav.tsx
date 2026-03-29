@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useJaelMode } from "@/components/providers/jael-mode-provider";
 
 const navItems = [
   {
@@ -53,13 +54,21 @@ const navItems = [
   },
 ];
 
+const jaelNavItems = [
+  navItems[0], // Dashboard
+  { ...navItems[1], href: "/log/new/photo", label: "Photo" }, // Log → straight to camera
+];
+
 export function BottomNav() {
   const pathname = usePathname();
+  const { jaelMode } = useJaelMode();
+
+  const items = jaelMode ? jaelNavItems : navItems;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] bg-[oklch(0.13_0.015_265)]/95 backdrop-blur supports-[backdrop-filter]:bg-[oklch(0.13_0.015_265)]/80">
       <div className="mx-auto flex h-16 max-w-md items-center justify-around">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive =
             item.href === "/"
               ? pathname === "/"
