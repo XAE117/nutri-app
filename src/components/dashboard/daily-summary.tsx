@@ -80,14 +80,14 @@ export function DailySummary({
       {/* Aurora glow */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-5 -z-10"
+        className="pointer-events-none absolute -inset-6 -z-10"
       >
         <div
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              "radial-gradient(ellipse 70% 50% at 25% 40%, var(--glow-indigo), transparent 70%)",
-            filter: "blur(24px)",
+              "radial-gradient(ellipse 50% 40% at 10% 15%, var(--glow-indigo), transparent 60%)",
+            filter: "blur(20px)",
             animation: "aurora-drift-1 8s ease-in-out infinite",
           }}
         />
@@ -95,8 +95,8 @@ export function DailySummary({
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              "radial-gradient(ellipse 50% 65% at 75% 25%, var(--glow-pink), transparent 70%)",
-            filter: "blur(24px)",
+              "radial-gradient(ellipse 45% 35% at 90% 10%, var(--glow-pink), transparent 60%)",
+            filter: "blur(20px)",
             animation: "aurora-drift-2 11s ease-in-out infinite",
           }}
         />
@@ -104,8 +104,8 @@ export function DailySummary({
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              "radial-gradient(ellipse 55% 45% at 50% 80%, var(--glow-teal), transparent 70%)",
-            filter: "blur(24px)",
+              "radial-gradient(ellipse 35% 50% at 95% 55%, var(--glow-teal), transparent 60%)",
+            filter: "blur(20px)",
             animation: "aurora-drift-3 13s ease-in-out infinite",
           }}
         />
@@ -113,8 +113,8 @@ export function DailySummary({
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              "radial-gradient(ellipse 45% 55% at 20% 70%, var(--glow-amber), transparent 70%)",
-            filter: "blur(24px)",
+              "radial-gradient(ellipse 45% 35% at 10% 90%, var(--glow-amber), transparent 60%)",
+            filter: "blur(20px)",
             animation: "aurora-drift-4 9s ease-in-out infinite",
           }}
         />
@@ -122,8 +122,8 @@ export function DailySummary({
           className="absolute inset-0 rounded-2xl"
           style={{
             background:
-              "radial-gradient(ellipse 60% 50% at 80% 65%, var(--glow-green), transparent 70%)",
-            filter: "blur(24px)",
+              "radial-gradient(ellipse 50% 35% at 65% 95%, var(--glow-green), transparent 60%)",
+            filter: "blur(20px)",
             animation: "aurora-drift-5 15s ease-in-out infinite",
           }}
         />
