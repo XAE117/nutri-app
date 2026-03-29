@@ -76,7 +76,7 @@ export function DailySummary({
     : null;
 
   return (
-    <div className="relative">
+    <div className="relative isolate">
       {/* Aurora glow */}
       <div
         aria-hidden="true"
