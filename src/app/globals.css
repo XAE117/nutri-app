@@ -193,6 +193,38 @@
   85% { transform: translate(-9px, -5px) scale(0.94); opacity: 0.28; }
 }
 
+/* ═══ Prismatic border shimmer (Annihilation refraction) ═══ */
+@keyframes prismatic-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.prismatic-border {
+  position: relative;
+}
+.prismatic-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    oklch(0.7 0.15 265 / 0.3),
+    oklch(0.7 0.12 180 / 0.2),
+    oklch(0.7 0.15 350 / 0.15),
+    oklch(0.7 0.12 85 / 0.2),
+    oklch(0.7 0.15 265 / 0.3)
+  );
+  background-size: 300% 300%;
+  animation: prismatic-shift 8s ease-in-out infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
 /* ═══ Film grain texture overlay ═══ */
 body::after {
   content: '';
@@ -200,7 +232,7 @@ body::after {
   inset: 0;
   z-index: 9999;
   pointer-events: none;
-  opacity: 0.030;
+  opacity: 0.025;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   background-repeat: repeat;

@@ -34,7 +34,7 @@ create policy "Users can delete own templates" on public.meal_templates
 
 create trigger set_meal_templates_updated_at
   before update on public.meal_templates
-  for each row execute function public.handle_updated_at();
+  for each row execute function public.update_updated_at();
 
 -- Household sharing
 create table public.household_members (
@@ -83,4 +83,4 @@ $$;
 
 create trigger set_household_members_updated_at
   before update on public.household_members
-  for each row execute function public.handle_updated_at();
+  for each row execute function public.update_updated_at();

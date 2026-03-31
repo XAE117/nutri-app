@@ -29,15 +29,18 @@ export default function OnboardingPage() {
   // Step 3: Activity
   const [activityLevel, setActivityLevel] = useState("moderate");
 
+  const [error, setError] = useState("");
+
   async function handleFinish() {
     setSaving(true);
+    setError("");
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) return;
 
     // Save profile
-    await supabase
+    const { error: profileErr } = await supabase
       .from("profiles")
       .update({
         height_cm: heightCm ? parseFloat(heightCm) : null,
@@ -47,8 +50,14 @@ export default function OnboardingPage() {
       })
       .eq("id", user.id);
 
+    if (profileErr) {
+      setError("Failed to save profile. Please try again.");
+      setSaving(false);
+      return;
+    }
+
     // Save goals
-    await supabase.from("user_goals").upsert(
+    const { error: goalsErr } = await supabase.from("user_goals").upsert(
       {
         user_id: user.id,
         goal_type: goalType,
@@ -60,6 +69,12 @@ export default function OnboardingPage() {
       },
       { onConflict: "user_id" }
     );
+
+    if (goalsErr) {
+      setError("Failed to save goals. Please try again.");
+      setSaving(false);
+      return;
+    }
 
     // Log initial weight if provided
     if (currentWeight) {
@@ -234,6 +249,10 @@ export default function OnboardingPage() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {error && (
+        <p className="text-center text-sm text-red-500">{error}</p>
       )}
 
       <p className="text-center text-xs text-muted-foreground">

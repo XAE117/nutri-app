@@ -50,7 +50,7 @@ export function FoodEntryCard({
 
   return (
     <Link href={`/log/${id}`}>
-      <Card className="transition-colors hover:bg-muted/50">
+      <Card className="transition-colors hover:bg-white/[0.06]">
         <CardContent className="p-4">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">

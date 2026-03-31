@@ -18,11 +18,15 @@ export default async function DashboardPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/login");
+  }
+
   // Check onboarding
   const { data: profile } = await supabase
     .from("profiles")
     .select("onboarding_complete")
-    .eq("id", user!.id)
+    .eq("id", user.id)
     .single();
 
   if (profile && profile.onboarding_complete === false) {
@@ -39,20 +43,20 @@ export default async function DashboardPage() {
     supabase
       .from("food_logs")
       .select("*")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .gte("logged_at", startOfDay)
       .lt("logged_at", endOfDay)
       .order("logged_at", { ascending: false }),
     supabase
       .from("user_goals")
       .select("target_calories, target_protein_g, target_carbs_g, target_fat_g")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .single(),
     // Recent unique meals for quick re-log (last 7 days, deduplicated by description)
     supabase
       .from("food_logs")
       .select("id, description, calories, protein_g, carbs_g, fat_g, fiber_g, meal_type, items, source")
-      .eq("user_id", user!.id)
+      .eq("user_id", user.id)
       .lt("logged_at", startOfDay)
       .order("logged_at", { ascending: false })
       .limit(20),
