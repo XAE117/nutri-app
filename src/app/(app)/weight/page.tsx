@@ -44,7 +44,7 @@ export default function WeightPage() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [useImperial, setUseImperial] = useState(false);
+  const [useImperial, setUseImperial] = useState(true);
   const [tdeeData, setTdeeData] = useState<TDEEData | null>(null);
 
   const supabase = createClient();
@@ -62,8 +62,8 @@ export default function WeightPage() {
       .eq("id", user.id)
       .single();
 
-    if (profile?.unit_system === "imperial") {
-      setUseImperial(true);
+    if (profile?.unit_system === "metric") {
+      setUseImperial(false);
     }
 
     // Load weight entries

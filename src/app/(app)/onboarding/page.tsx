@@ -39,14 +39,20 @@ export default function OnboardingPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Convert imperial inputs to metric for DB storage
+    const heightCmVal = heightCm ? parseFloat(heightCm) * 2.54 : null;
+    const targetWeightKg = targetWeight ? parseFloat(targetWeight) * 0.453592 : null;
+    const currentWeightKg = currentWeight ? parseFloat(currentWeight) * 0.453592 : null;
+
     // Save profile
     const { error: profileErr } = await supabase
       .from("profiles")
       .update({
-        height_cm: heightCm ? parseFloat(heightCm) : null,
+        height_cm: heightCmVal ? Math.round(heightCmVal * 10) / 10 : null,
         age: age ? parseInt(age) : null,
         sex: sex || null,
         onboarding_complete: true,
+        unit_system: "imperial",
       })
       .eq("id", user.id);
 
@@ -61,8 +67,8 @@ export default function OnboardingPage() {
       {
         user_id: user.id,
         goal_type: goalType,
-        target_weight_kg: targetWeight ? parseFloat(targetWeight) : null,
-        height_cm: heightCm ? parseFloat(heightCm) : null,
+        target_weight_kg: targetWeightKg ? Math.round(targetWeightKg * 100) / 100 : null,
+        height_cm: heightCmVal ? Math.round(heightCmVal * 10) / 10 : null,
         age: age ? parseInt(age) : null,
         sex: sex || null,
         activity_level: activityLevel,
@@ -77,12 +83,12 @@ export default function OnboardingPage() {
     }
 
     // Log initial weight if provided
-    if (currentWeight) {
+    if (currentWeightKg) {
       await supabase.from("weight_logs").upsert(
         {
           user_id: user.id,
           logged_at: new Date().toISOString().slice(0, 10),
-          weight_kg: parseFloat(currentWeight),
+          weight_kg: Math.round(currentWeightKg * 100) / 100,
         },
         { onConflict: "user_id,logged_at" }
       );
@@ -134,13 +140,13 @@ export default function OnboardingPage() {
 
             {goalType !== "maintain" && (
               <div className="pt-2">
-                <Label className="text-sm">Target weight (kg)</Label>
+                <Label className="text-sm">Target weight (lbs)</Label>
                 <Input
                   type="number"
                   step="0.1"
                   value={targetWeight}
                   onChange={(e) => setTargetWeight(e.target.value)}
-                  placeholder="e.g. 80"
+                  placeholder="e.g. 175"
                 />
               </div>
             )}
@@ -159,22 +165,22 @@ export default function OnboardingPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div>
-              <Label className="text-sm">Current weight (kg)</Label>
+              <Label className="text-sm">Current weight (lbs)</Label>
               <Input
                 type="number"
                 step="0.1"
                 value={currentWeight}
                 onChange={(e) => setCurrentWeight(e.target.value)}
-                placeholder="e.g. 85"
+                placeholder="e.g. 185"
               />
             </div>
             <div>
-              <Label className="text-sm">Height (cm)</Label>
+              <Label className="text-sm">Height (inches)</Label>
               <Input
                 type="number"
                 value={heightCm}
                 onChange={(e) => setHeightCm(e.target.value)}
-                placeholder="e.g. 175"
+                placeholder="e.g. 70"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">

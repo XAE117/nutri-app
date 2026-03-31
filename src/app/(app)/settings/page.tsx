@@ -19,7 +19,7 @@ export default function SettingsPage() {
   const [heightCm, setHeightCm] = useState("");
   const [age, setAge] = useState("");
   const [sex, setSex] = useState("");
-  const [unitSystem, setUnitSystem] = useState("metric");
+  const [unitSystem, setUnitSystem] = useState("imperial");
 
   // Goal fields
   const [goalType, setGoalType] = useState("maintain");
@@ -52,10 +52,15 @@ export default function SettingsPage() {
         .single();
 
       if (profile) {
-        setHeightCm(profile.height_cm?.toString() || "");
+        const isImp = (profile.unit_system || "imperial") === "imperial";
+        setHeightCm(
+          profile.height_cm
+            ? (isImp ? Math.round(profile.height_cm / 2.54) : profile.height_cm).toString()
+            : ""
+        );
         setAge(profile.age?.toString() || "");
         setSex(profile.sex || "");
-        setUnitSystem(profile.unit_system || "metric");
+        setUnitSystem(profile.unit_system || "imperial");
       }
 
       // Load goals
@@ -66,13 +71,22 @@ export default function SettingsPage() {
         .single();
 
       if (goals) {
+        const isImp = ((profile as { unit_system?: string })?.unit_system || "imperial") === "imperial";
         setGoalType(goals.goal_type || "maintain");
-        setTargetWeight(goals.target_weight_kg?.toString() || "");
+        setTargetWeight(
+          goals.target_weight_kg
+            ? (isImp ? Math.round(goals.target_weight_kg * 2.20462 * 10) / 10 : goals.target_weight_kg).toString()
+            : ""
+        );
         setTargetCalories(goals.target_calories?.toString() || "");
         setTargetProtein(goals.target_protein_g?.toString() || "");
         setTargetCarbs(goals.target_carbs_g?.toString() || "");
         setTargetFat(goals.target_fat_g?.toString() || "");
-        setRatePerWeek(goals.rate_per_week_kg?.toString() || "0.5");
+        setRatePerWeek(
+          goals.rate_per_week_kg
+            ? (isImp ? Math.round(goals.rate_per_week_kg * 2.20462 * 10) / 10 : goals.rate_per_week_kg).toString()
+            : "1"
+        );
         setActivityLevel(goals.activity_level || "moderate");
       }
     }
@@ -88,11 +102,23 @@ export default function SettingsPage() {
     } = await supabase.auth.getUser();
     if (!user) return;
 
+    // Convert imperial to metric for DB storage
+    const isImperial = unitSystem === "imperial";
+    const heightCmVal = heightCm
+      ? Math.round((isImperial ? parseFloat(heightCm) * 2.54 : parseFloat(heightCm)) * 10) / 10
+      : null;
+    const targetWeightKg = targetWeight
+      ? Math.round((isImperial ? parseFloat(targetWeight) * 0.453592 : parseFloat(targetWeight)) * 100) / 100
+      : null;
+    const rateKg = isImperial
+      ? Math.round((parseFloat(ratePerWeek) || 0.5) * 0.453592 * 100) / 100
+      : parseFloat(ratePerWeek) || 0.5;
+
     // Update profile
     await supabase
       .from("profiles")
       .update({
-        height_cm: heightCm ? parseFloat(heightCm) : null,
+        height_cm: heightCmVal,
         age: age ? parseInt(age) : null,
         sex: sex || null,
         unit_system: unitSystem,
@@ -103,13 +129,13 @@ export default function SettingsPage() {
     const goalsData = {
       user_id: user.id,
       goal_type: goalType,
-      target_weight_kg: targetWeight ? parseFloat(targetWeight) : null,
+      target_weight_kg: targetWeightKg,
       target_calories: targetCalories ? parseInt(targetCalories) : null,
       target_protein_g: targetProtein ? parseInt(targetProtein) : null,
       target_carbs_g: targetCarbs ? parseInt(targetCarbs) : null,
       target_fat_g: targetFat ? parseInt(targetFat) : null,
-      rate_per_week_kg: parseFloat(ratePerWeek) || 0.5,
-      height_cm: heightCm ? parseFloat(heightCm) : null,
+      rate_per_week_kg: rateKg,
+      height_cm: heightCmVal,
       age: age ? parseInt(age) : null,
       sex: sex || null,
       activity_level: activityLevel,
@@ -159,12 +185,14 @@ export default function SettingsPage() {
         <CardContent className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label className="text-xs">Height (cm)</Label>
+              <Label className="text-xs">
+                Height ({unitSystem === "imperial" ? "in" : "cm"})
+              </Label>
               <Input
                 type="number"
                 value={heightCm}
                 onChange={(e) => setHeightCm(e.target.value)}
-                placeholder="175"
+                placeholder={unitSystem === "imperial" ? "70" : "175"}
               />
             </div>
             <div>
@@ -253,7 +281,9 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <Label className="text-xs">Rate (kg/week)</Label>
+              <Label className="text-xs">
+                Rate ({unitSystem === "imperial" ? "lbs" : "kg"}/week)
+              </Label>
               <Input
                 type="number"
                 step="0.1"
