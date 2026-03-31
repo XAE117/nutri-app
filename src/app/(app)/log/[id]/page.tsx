@@ -165,7 +165,7 @@ export default function EntryDetailPage() {
         {entry.confidence !== null && entry.confidence < 0.7 && (
           <Badge
             variant="outline"
-            className="border-orange-300 bg-orange-50 text-orange-700"
+            className="border-amber-400/50 bg-amber-500/10 text-amber-300"
           >
             Low confidence ({Math.round(entry.confidence * 100)}%)
           </Badge>
@@ -278,27 +278,27 @@ export default function EntryDetailPage() {
             </h2>
             <div className="mt-2 grid grid-cols-4 gap-2">
               <div className="text-center rounded-lg bg-muted/50 p-2">
-                <p className="text-lg font-semibold tabular-nums">
+                <p className="text-lg font-bold tabular-nums text-brand">
                   {Math.round(entry.calories ?? 0)}
                 </p>
                 <p className="text-xs text-muted-foreground">cal</p>
               </div>
               <div className="text-center rounded-lg bg-muted/50 p-2">
-                <p className="text-lg font-semibold tabular-nums">
+                <p className="text-lg font-semibold tabular-nums" style={{ color: "#5eead4" }}>
                   {Math.round(entry.protein_g ?? 0)}
                   <span className="text-xs font-normal">g</span>
                 </p>
                 <p className="text-xs text-muted-foreground">protein</p>
               </div>
               <div className="text-center rounded-lg bg-muted/50 p-2">
-                <p className="text-lg font-semibold tabular-nums">
+                <p className="text-lg font-semibold tabular-nums" style={{ color: "#fcd34d" }}>
                   {Math.round(entry.carbs_g ?? 0)}
                   <span className="text-xs font-normal">g</span>
                 </p>
                 <p className="text-xs text-muted-foreground">carbs</p>
               </div>
               <div className="text-center rounded-lg bg-muted/50 p-2">
-                <p className="text-lg font-semibold tabular-nums">
+                <p className="text-lg font-semibold tabular-nums" style={{ color: "#f472b6" }}>
                   {Math.round(entry.fat_g ?? 0)}
                   <span className="text-xs font-normal">g</span>
                 </p>

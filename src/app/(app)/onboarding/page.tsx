@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 type Step = 1 | 2 | 3;
 
@@ -129,7 +136,7 @@ export default function OnboardingPage() {
                 onClick={() => setGoalType(opt.value)}
                 className={`w-full rounded-lg border p-3 text-left transition-colors ${
                   goalType === opt.value
-                    ? "border-[#6366f1]/50 bg-[#6366f1]/10"
+                    ? "border-brand/50 bg-brand/10"
                     : "border-border hover:bg-muted/50"
                 }`}
               >
@@ -194,15 +201,15 @@ export default function OnboardingPage() {
               </div>
               <div>
                 <Label className="text-sm">Sex</Label>
-                <select
-                  value={sex}
-                  onChange={(e) => setSex(e.target.value)}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                >
-                  <option value="">--</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                </select>
+                <Select value={sex} onValueChange={(v) => setSex(v ?? "")}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="--" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -236,7 +243,7 @@ export default function OnboardingPage() {
                 onClick={() => setActivityLevel(opt.value)}
                 className={`w-full rounded-lg border p-3 text-left transition-colors ${
                   activityLevel === opt.value
-                    ? "border-[#6366f1]/50 bg-[#6366f1]/10"
+                    ? "border-brand/50 bg-brand/10"
                     : "border-border hover:bg-muted/50"
                 }`}
               >

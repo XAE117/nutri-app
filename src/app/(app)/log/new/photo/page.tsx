@@ -2,6 +2,8 @@
 
 import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { createClient } from "@/lib/supabase/client";
 import { AnalyzingSkeleton } from "@/components/capture/analyzing-skeleton";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ export default function PhotoCapturePage() {
   const [hint, setHint] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const supabase = createClient();
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,13 +70,36 @@ export default function PhotoCapturePage() {
       }
 
       setState({ status: "done", entry: data.entry });
+
+      // Undo toast — gives 5s to reverse a mistaken log
+      toast("Food logged!", {
+        action: {
+          label: "Undo",
+          onClick: async () => {
+            const entryId = data.entry?.id;
+            if (!entryId) return;
+            const { error } = await supabase
+              .from("food_logs")
+              .delete()
+              .eq("id", entryId);
+            if (error) {
+              toast.error("Failed to undo");
+            } else {
+              toast("Entry removed");
+              setState({ status: "idle" });
+              setHint("");
+            }
+          },
+        },
+        duration: 5000,
+      });
     } catch (err) {
       setState({
         status: "error",
         message: err instanceof Error ? err.message : "Something went wrong",
       });
     }
-  }, [state, hint]);
+  }, [state, hint, supabase]);
 
   return (
     <div className="space-y-4">
@@ -165,13 +191,9 @@ export default function PhotoCapturePage() {
         className="hidden"
       />
 
-      {state.status === "compressing" && (
-        <p className="text-center text-sm text-muted-foreground">
-          Compressing image...
-        </p>
-      )}
+      {state.status === "compressing" && <AnalyzingSkeleton step="compressing" />}
 
-      {state.status === "analyzing" && <AnalyzingSkeleton />}
+      {state.status === "analyzing" && <AnalyzingSkeleton step="analyzing" />}
 
       {state.status === "error" && (
         <div className="rounded-md bg-destructive/10 p-4 text-center">

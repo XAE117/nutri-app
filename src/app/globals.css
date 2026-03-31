@@ -53,6 +53,9 @@
   --color-glow-teal: var(--glow-teal);
   --color-glow-amber: var(--glow-amber);
   --color-glow-green: var(--glow-green);
+
+  /* Brand color — canonical indigo for all interactive elements */
+  --color-brand: var(--glow-indigo);
 }
 
 /* Light mode fallback (unused — app forces dark) */
@@ -89,11 +92,11 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.585 0.233 264);
-  --glow-indigo: #6366f1;
-  --glow-pink: #ec4899;
-  --glow-teal: #2dd4bf;
-  --glow-amber: #f59e0b;
-  --glow-green: #4ade80;
+  --glow-indigo: #818cf8;
+  --glow-pink: #f472b6;
+  --glow-teal: #5eead4;
+  --glow-amber: #fcd34d;
+  --glow-green: #86efac;
 }
 
 /* ═══ Deep dark theme with vibrant accents ═══ */
@@ -230,7 +233,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 1;
   pointer-events: none;
   opacity: 0.025;
   mix-blend-mode: overlay;

@@ -31,7 +31,7 @@ export function DashboardActions() {
       <Link href={jaelMode ? "/log/new/photo" : "/log/new"}>
         <Button
           size="sm"
-          className="bg-[#6366f1] hover:bg-[#5558e6] text-white"
+          className="bg-brand hover:bg-brand/85 text-white"
         >
           {jaelMode ? "Snap Photo" : "Log Food"}
         </Button>

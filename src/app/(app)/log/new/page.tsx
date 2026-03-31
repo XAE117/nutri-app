@@ -70,15 +70,15 @@ export default function NewEntryPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Log Food</h1>
-      <div className="grid gap-3">
+      <div className="grid grid-cols-2 gap-3">
         {options.map((opt) => (
           <Link key={opt.href} href={opt.href}>
-            <Card className="transition-colors hover:bg-muted/50">
-              <CardContent className="flex items-center gap-4 p-4">
+            <Card className="transition-colors hover:bg-muted/50 h-full">
+              <CardContent className="flex flex-col items-center text-center gap-2 p-4 pt-5">
                 <div className="text-muted-foreground">{opt.icon}</div>
                 <div>
-                  <p className="font-medium">{opt.title}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-sm">{opt.title}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {opt.description}
                   </p>
                 </div>

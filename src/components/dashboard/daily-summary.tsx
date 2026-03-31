@@ -32,7 +32,7 @@ function MacroRow({
   unit?: string;
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : null;
-  const barColor = macroColors[label] || "#818cf8";
+  const barColor = macroColors[label] || "var(--glow-indigo)";
 
   return (
     <div className="space-y-1">

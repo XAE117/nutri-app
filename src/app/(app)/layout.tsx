@@ -10,7 +10,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <ErrorBoundary>
       <JaelModeProvider>
         <OfflineIndicator />
-        <div className="mx-auto w-full max-w-md pb-20">
+        <div className="mx-auto w-full max-w-md pb-[calc(4rem+env(safe-area-inset-bottom,0px))]">
           <main className="px-4 py-4">{children}</main>
           <BottomNav />
         </div>

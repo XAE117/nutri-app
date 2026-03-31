@@ -51,7 +51,7 @@ export default function SignupPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl bg-gradient-to-r from-[#818cf8] to-[#f472b6] bg-clip-text text-transparent">NutriLens</CardTitle>
+        <CardTitle className="text-2xl bg-gradient-to-r from-brand to-glow-pink bg-clip-text text-transparent">NutriLens</CardTitle>
         <CardDescription>Create your account</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>

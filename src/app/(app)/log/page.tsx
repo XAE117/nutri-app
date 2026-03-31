@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 
 export default async function FoodLogPage() {
@@ -51,14 +52,20 @@ export default async function FoodLogPage() {
       </div>
 
       {logs.length === 0 ? (
-        <div className="py-12 text-center">
-          <p className="text-muted-foreground">No entries yet today.</p>
-          <Link href="/log/new/photo">
-            <Button variant="outline" className="mt-3">
-              Take a food photo
-            </Button>
-          </Link>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+            </svg>
+          }
+          title="No entries yet today"
+          description="Log your first meal to start tracking today's nutrition."
+          action={
+            <Link href="/log/new/photo">
+              <Button>Take a food photo</Button>
+            </Link>
+          }
+        />
       ) : (
         <div className="space-y-6">
           {mealOrder

@@ -121,7 +121,7 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
           <path
             d={describeArc(cx, cy, radius, startAngle, animatedAngle)}
             fill="none"
-            stroke={overTarget ? "#f87171" : "#818cf8"}
+            stroke={overTarget ? "#f87171" : "var(--glow-indigo)"}
             strokeWidth="3"
             strokeLinecap="round"
             className="transition-all"
