@@ -96,8 +96,9 @@ export default async function DashboardPage() {
           <HowItWorksDialog />
           <JaelModeToggle />
         </div>
-        <DashboardActions />
       </div>
+
+      <DashboardActions />
 
       <DailySummary
         calories={totals.calories}
