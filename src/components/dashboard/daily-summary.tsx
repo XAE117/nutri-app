@@ -13,47 +13,43 @@ interface DailySummaryProps {
   targetFat?: number;
 }
 
-const macroColors: Record<string, string> = {
-  Protein: "#5eead4",
-  Carbs: "#fcd34d",
-  Fat: "#f472b6",
-  Fiber: "#86efac",
-};
-
 function MacroRow({
   label,
   value,
   target,
-  unit = "g",
+  color,
 }: {
   label: string;
   value: number;
   target?: number;
-  unit?: string;
+  color: string;
 }) {
   const pct = target ? Math.min(100, Math.round((value / target) * 100)) : null;
-  const barColor = macroColors[label] || "var(--glow-indigo)";
 
   return (
-    <div className="space-y-1">
-      <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{label}</span>
-        <span className="font-medium">
-          {Math.round(value)}
-          {unit}
-          {target ? (
-            <span className="text-muted-foreground"> / {target}{unit}</span>
-          ) : null}
-        </span>
-      </div>
-      {target && (
-        <div className="h-1.5 w-full rounded-full bg-muted">
+    <div className="flex items-center gap-3">
+      <div
+        className="h-1.5 w-1.5 rounded-full shrink-0"
+        style={{ backgroundColor: color }}
+      />
+      <span className="w-12 text-xs text-muted-foreground">{label}</span>
+      <div className="flex-1 h-1 rounded-full bg-white/[0.06] overflow-hidden">
+        {target ? (
           <div
-            className="h-1.5 rounded-full transition-all"
-            style={{ width: `${pct}%`, backgroundColor: barColor }}
+            className="h-full rounded-full transition-all duration-700"
+            style={{ width: `${pct}%`, backgroundColor: color }}
           />
-        </div>
-      )}
+        ) : null}
+      </div>
+      <span className="text-xs font-medium tabular-nums">
+        {Math.round(value)}g
+        {target ? (
+          <span className="text-muted-foreground font-normal">
+            {" "}
+            / {target}g
+          </span>
+        ) : null}
+      </span>
     </div>
   );
 }
@@ -70,99 +66,51 @@ export function DailySummary({
   targetCarbs,
   targetFat,
 }: DailySummaryProps) {
-  const calPct = targetCalories
-    ? Math.min(100, Math.round((calories / targetCalories) * 100))
-    : null;
-
   return (
-    <div className="relative isolate mt-4">
-      {/* Aurora glow */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -inset-6 -z-10"
-      >
-        <div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(ellipse 50% 40% at 10% 15%, var(--glow-indigo), transparent 60%)",
-            filter: "blur(20px)",
-            animation: "aurora-drift-1 8s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(ellipse 45% 35% at 90% 10%, var(--glow-pink), transparent 60%)",
-            filter: "blur(20px)",
-            animation: "aurora-drift-2 11s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(ellipse 35% 50% at 95% 55%, var(--glow-teal), transparent 60%)",
-            filter: "blur(20px)",
-            animation: "aurora-drift-3 13s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(ellipse 45% 35% at 10% 90%, var(--glow-amber), transparent 60%)",
-            filter: "blur(20px)",
-            animation: "aurora-drift-4 9s ease-in-out infinite",
-          }}
-        />
-        <div
-          className="absolute inset-0 rounded-2xl"
-          style={{
-            background:
-              "radial-gradient(ellipse 50% 35% at 65% 95%, var(--glow-green), transparent 60%)",
-            filter: "blur(20px)",
-            animation: "aurora-drift-5 15s ease-in-out infinite",
-          }}
-        />
-        {/* Grain texture on glow */}
-        <div
-          className="absolute inset-0 rounded-2xl opacity-50 mix-blend-overlay"
-          style={{
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-            backgroundSize: "150px 150px",
-          }}
-        />
-      </div>
-
-      <div className="relative space-y-4 rounded-2xl bg-[oklch(0.16_0.01_265)] border-0 px-4 py-4">
-        {/* Calories gauge */}
-        {targetCalories ? (
-          <div>
-            <CalorieGauge calories={calories} target={targetCalories} />
-            <p className="text-center text-xs text-muted-foreground mt-1">
-              {entryCount} {entryCount === 1 ? "entry" : "entries"} today
-            </p>
-          </div>
-        ) : (
-          <div className="text-center">
-            <p className="text-3xl font-bold">{Math.round(calories)}</p>
-            <p className="text-sm text-muted-foreground">
-              calories · {entryCount}{" "}
-              {entryCount === 1 ? "entry" : "entries"}
-            </p>
-          </div>
-        )}
-
-        {/* Macro breakdown */}
-        <div className="space-y-2">
-          <MacroRow label="Protein" value={protein} target={targetProtein} />
-          <MacroRow label="Carbs" value={carbs} target={targetCarbs} />
-          <MacroRow label="Fat" value={fat} target={targetFat} />
-          <MacroRow label="Fiber" value={fiber} />
+    <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 space-y-4">
+      {/* Calories hero */}
+      {targetCalories ? (
+        <div>
+          <CalorieGauge calories={calories} target={targetCalories} />
+          <p className="text-center text-xs text-muted-foreground mt-1">
+            {entryCount} {entryCount === 1 ? "entry" : "entries"} today
+          </p>
         </div>
+      ) : (
+        <div className="text-center py-2">
+          <p className="text-4xl font-semibold tabular-nums tracking-tight">
+            {Math.round(calories)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            calories · {entryCount} {entryCount === 1 ? "entry" : "entries"}
+          </p>
+        </div>
+      )}
+
+      {/* Separator */}
+      <div className="h-px bg-white/[0.06]" />
+
+      {/* Macro breakdown */}
+      <div className="space-y-2.5">
+        <MacroRow
+          label="Protein"
+          value={protein}
+          target={targetProtein}
+          color="#5eead4"
+        />
+        <MacroRow
+          label="Carbs"
+          value={carbs}
+          target={targetCarbs}
+          color="#fcd34d"
+        />
+        <MacroRow
+          label="Fat"
+          value={fat}
+          target={targetFat}
+          color="#f472b6"
+        />
+        <MacroRow label="Fiber" value={fiber} color="#86efac" />
       </div>
     </div>
   );

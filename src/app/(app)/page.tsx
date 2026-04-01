@@ -87,19 +87,17 @@ export default async function DashboardPage() {
   );
 
   return (
-    <div className="space-y-4">
-      <InstallPrompt />
-
+    <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Today</h1>
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold">Today</h1>
           <HowItWorksDialog />
           <JaelModeToggle />
         </div>
       </div>
 
-      <DashboardActions />
-
+      {/* Calorie + Macro Card */}
       <DailySummary
         calories={totals.calories}
         protein={totals.protein}
@@ -113,7 +111,7 @@ export default async function DashboardPage() {
         targetFat={goals?.target_fat_g ?? undefined}
       />
 
-      {/* Macro ring charts — show with or without goals when food data exists */}
+      {/* Macro ring charts */}
       <JaelHide>
         {(totals.protein + totals.carbs + totals.fat > 0 || goals?.target_protein_g || goals?.target_carbs_g || goals?.target_fat_g) && (
           <MacroRings
@@ -127,24 +125,28 @@ export default async function DashboardPage() {
         )}
       </JaelHide>
 
+      {/* Quick nav — Gallery & Recipes */}
+      <DashboardActions />
+
       {/* Quick re-log from recent meals */}
       <JaelHide>
         <QuickRelog meals={recentMeals} />
       </JaelHide>
 
+      {/* Food entries */}
       {logs.length === 0 ? (
         <EmptyState
           icon={
-            <svg className="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
+            <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.75}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
             </svg>
           }
           title="No entries yet today"
-          description="Snap a photo of your meal to get started. AI will identify ingredients and estimate nutrition."
+          description="Snap a photo of your meal to get started"
           action={
             <Link href="/log/new/photo">
-              <Button>Take a food photo</Button>
+              <Button size="sm">Take a food photo</Button>
             </Link>
           }
         />
@@ -168,6 +170,9 @@ export default async function DashboardPage() {
           ))}
         </div>
       )}
+
+      {/* Install prompt — subtle, at bottom */}
+      <InstallPrompt />
     </div>
   );
 }

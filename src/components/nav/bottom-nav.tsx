@@ -21,7 +21,7 @@ const navItems = [
     href: "/log/new",
     fab: true,
     icon: (
-      <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
       </svg>
     ),
@@ -50,7 +50,7 @@ const navItems = [
 
 const jaelNavItems = [
   navItems[0], // Dashboard
-  { ...navItems[1], href: "/log/new/photo", label: "Photo" }, // Log → straight to camera
+  { ...navItems[1], href: "/log/new/photo", label: "Photo" }, // straight to camera
 ];
 
 export function BottomNav() {
@@ -60,25 +60,24 @@ export function BottomNav() {
   const items = jaelMode ? jaelNavItems : navItems;
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] bg-[oklch(0.13_0.015_265)]/95 backdrop-blur supports-[backdrop-filter]:bg-[oklch(0.13_0.015_265)]/80 pb-[env(safe-area-inset-bottom,0px)]">
-      <div className="mx-auto flex h-16 max-w-md items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/[0.06] bg-background/90 backdrop-blur-xl pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="mx-auto flex h-14 max-w-md items-center justify-around">
         {items.map((item) => {
           const isActive =
             item.href === "/"
               ? pathname === "/"
               : pathname.startsWith(item.href);
 
-          // FAB-style raised button for Log
           if (item.fab) {
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center gap-0.5 -mt-4"
+                className="flex flex-col items-center gap-0.5"
               >
                 <div
                   className={cn(
-                    "flex h-12 w-12 items-center justify-center rounded-full shadow-lg transition-colors",
+                    "flex h-10 w-10 items-center justify-center rounded-full transition-colors",
                     isActive
                       ? "bg-brand text-white"
                       : "bg-brand/80 text-white hover:bg-brand"
@@ -86,10 +85,12 @@ export function BottomNav() {
                 >
                   {item.icon}
                 </div>
-                <span className={cn(
-                  "text-[10px]",
-                  isActive ? "text-brand" : "text-muted-foreground"
-                )}>
+                <span
+                  className={cn(
+                    "text-[10px]",
+                    isActive ? "text-brand" : "text-muted-foreground"
+                  )}
+                >
                   {item.label}
                 </span>
               </Link>

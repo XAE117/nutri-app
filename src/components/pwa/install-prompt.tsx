@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -35,15 +34,23 @@ export function InstallPrompt() {
   }
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-brand/20 bg-brand/5 p-3">
-      <p className="text-sm">Install NutriLens for quick access</p>
-      <div className="flex gap-2">
-        <Button size="sm" variant="ghost" onClick={() => setDismissed(true)}>
+    <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/[0.06] px-4 py-3">
+      <p className="text-xs text-muted-foreground">
+        Install NutriLens for quick access
+      </p>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setDismissed(true)}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
           Later
-        </Button>
-        <Button size="sm" onClick={handleInstall}>
+        </button>
+        <button
+          onClick={handleInstall}
+          className="text-xs font-medium text-brand hover:text-brand/80 transition-colors"
+        >
           Install
-        </Button>
+        </button>
       </div>
     </div>
   );
