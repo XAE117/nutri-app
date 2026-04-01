@@ -66,51 +66,98 @@ export function DailySummary({
   targetCarbs,
   targetFat,
 }: DailySummaryProps) {
+  // Always show the gauge — default to 2000 cal if no target set
+  const gaugeTarget = targetCalories ?? 2000;
+
   return (
-    <div className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 space-y-4">
-      {/* Calories hero */}
-      {targetCalories ? (
+    <div className="relative isolate">
+      {/* Aurora glow — peeks out at card edges */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -inset-3 -z-10"
+      >
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 40% at 10% 15%, var(--glow-indigo), transparent 60%)",
+            filter: "blur(18px)",
+            animation: "aurora-drift-1 8s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 45% 35% at 90% 10%, var(--glow-pink), transparent 60%)",
+            filter: "blur(18px)",
+            animation: "aurora-drift-2 11s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 35% 50% at 95% 55%, var(--glow-teal), transparent 60%)",
+            filter: "blur(18px)",
+            animation: "aurora-drift-3 13s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 45% 35% at 10% 90%, var(--glow-amber), transparent 60%)",
+            filter: "blur(18px)",
+            animation: "aurora-drift-4 9s ease-in-out infinite",
+          }}
+        />
+        <div
+          className="absolute inset-0 rounded-2xl"
+          style={{
+            background:
+              "radial-gradient(ellipse 50% 35% at 65% 95%, var(--glow-green), transparent 60%)",
+            filter: "blur(18px)",
+            animation: "aurora-drift-5 15s ease-in-out infinite",
+          }}
+        />
+      </div>
+
+      {/* Card — solid background covers the glow, glow only peeks at edges */}
+      <div className="relative rounded-2xl bg-background p-5 space-y-4">
+        {/* Analog calorie gauge — always visible */}
         <div>
-          <CalorieGauge calories={calories} target={targetCalories} />
+          <CalorieGauge calories={calories} target={gaugeTarget} />
           <p className="text-center text-xs text-muted-foreground mt-1">
             {entryCount} {entryCount === 1 ? "entry" : "entries"} today
           </p>
         </div>
-      ) : (
-        <div className="text-center py-2">
-          <p className="text-4xl font-semibold tabular-nums tracking-tight">
-            {Math.round(calories)}
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            calories · {entryCount} {entryCount === 1 ? "entry" : "entries"}
-          </p>
+
+        {/* Separator */}
+        <div className="h-px bg-white/[0.06]" />
+
+        {/* Macro breakdown */}
+        <div className="space-y-2.5">
+          <MacroRow
+            label="Protein"
+            value={protein}
+            target={targetProtein}
+            color="#5eead4"
+          />
+          <MacroRow
+            label="Carbs"
+            value={carbs}
+            target={targetCarbs}
+            color="#fcd34d"
+          />
+          <MacroRow
+            label="Fat"
+            value={fat}
+            target={targetFat}
+            color="#f472b6"
+          />
+          <MacroRow label="Fiber" value={fiber} color="#86efac" />
         </div>
-      )}
-
-      {/* Separator */}
-      <div className="h-px bg-white/[0.06]" />
-
-      {/* Macro breakdown */}
-      <div className="space-y-2.5">
-        <MacroRow
-          label="Protein"
-          value={protein}
-          target={targetProtein}
-          color="#5eead4"
-        />
-        <MacroRow
-          label="Carbs"
-          value={carbs}
-          target={targetCarbs}
-          color="#fcd34d"
-        />
-        <MacroRow
-          label="Fat"
-          value={fat}
-          target={targetFat}
-          color="#f472b6"
-        />
-        <MacroRow label="Fiber" value={fiber} color="#86efac" />
       </div>
     </div>
   );
