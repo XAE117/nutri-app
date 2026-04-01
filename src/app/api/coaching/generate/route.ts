@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { getSemanticState, refreshSemanticState } from "@/lib/ai/semantic-state";
+
+export const maxDuration = 60;
 import { getRecentEpisodes } from "@/lib/ai/memory";
 import { COACHING_SYSTEM_PROMPT, COACHING_REVIEW_TOOL } from "@/lib/ai/prompts";
 

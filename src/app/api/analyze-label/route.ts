@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 
+export const maxDuration = 60;
+
 const LabelSchema = z.object({
   product_name: z.string(),
   serving_size: z.string(),

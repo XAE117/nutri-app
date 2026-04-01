@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrilens-v7";
+const CACHE_NAME = "nutrilens-v8";
 const APP_SHELL = [
   "/",
   "/log",

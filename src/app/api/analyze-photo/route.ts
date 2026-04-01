@@ -4,6 +4,8 @@ import { analyzeFood } from "@/lib/ai/vision";
 import { getSemanticState } from "@/lib/ai/semantic-state";
 import { getRecentEpisodes, createMealEpisode, generateMealSummary } from "@/lib/ai/memory";
 
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   const supabase = await createClient();
   const {
