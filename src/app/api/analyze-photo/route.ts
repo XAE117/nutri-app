@@ -72,7 +72,7 @@ export async function POST(request: Request) {
 
     if (error || !data) {
       return NextResponse.json(
-        { error: error || "Analysis failed", raw },
+        { error: error || "Analysis failed" },
         { status: 422 }
       );
     }

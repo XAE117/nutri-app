@@ -85,8 +85,18 @@ export async function analyzeFood(
     }
 
     return { data: parsed.data, error: null, raw: toolUse.input };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return { data: null, error: message, raw: null };
+  } catch (err: unknown) {
+    // Surface friendly messages for common API errors
+    const raw = err instanceof Error ? err.message : String(err);
+    if (raw.includes("credit balance")) {
+      return { data: null, error: "API credits exhausted. Please add funds at console.anthropic.com.", raw: null };
+    }
+    if (raw.includes("rate_limit") || raw.includes("429")) {
+      return { data: null, error: "Too many requests — please wait a moment and try again.", raw: null };
+    }
+    if (raw.includes("authentication") || raw.includes("401")) {
+      return { data: null, error: "API key is invalid or expired. Check your Anthropic settings.", raw: null };
+    }
+    return { data: null, error: "Analysis failed — please try again.", raw: null };
   }
 }
