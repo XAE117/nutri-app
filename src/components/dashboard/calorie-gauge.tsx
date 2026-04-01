@@ -24,16 +24,18 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
   const clamped = Math.min(calories, max);
   const targetAngle = startAngle + (clamped / max) * sweep;
 
-  // Animate: slam to max first, then settle to actual value
+  // Animate: sweep to ~95% of meter capacity, then slowly settle to actual value
+  const overshootAngle = startAngle + 0.95 * sweep; // 95% of the arc
+
   useEffect(() => {
     setPhase("max");
-    setAnimatedAngle(endAngle); // slam to max (right side)
+    setAnimatedAngle(overshootAngle);
     const t = setTimeout(() => {
       setPhase("settle");
       setAnimatedAngle(targetAngle);
-    }, 700);
+    }, 1200);
     return () => clearTimeout(t);
-  }, [targetAngle]);
+  }, [targetAngle, overshootAngle]);
 
   // Generate tick marks
   const majorTicks = 6; // 0, 500, 1000, 1500, 2000, 2500 etc.
@@ -126,11 +128,11 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
             strokeLinecap="round"
             className="transition-all"
             style={{
-              transitionDuration: phase === "max" ? "600ms" : "1200ms",
+              transitionDuration: phase === "max" ? "1000ms" : "2500ms",
               transitionTimingFunction:
                 phase === "max"
                   ? "cubic-bezier(0.22, 1, 0.36, 1)"
-                  : "cubic-bezier(0.34, 1.56, 0.64, 1)",
+                  : "cubic-bezier(0.25, 0.1, 0.25, 1)",
             }}
           />
         )}
