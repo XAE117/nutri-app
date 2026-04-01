@@ -8,8 +8,8 @@ interface CalorieGaugeProps {
 }
 
 export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
-  const [animatedAngle, setAnimatedAngle] = useState(-180);
-  const [phase, setPhase] = useState<"idle" | "max" | "settle">("idle");
+  const [needlePhase, setNeedlePhase] = useState<"idle" | "overshoot" | "settle">("idle");
+  const [arcMounted, setArcMounted] = useState(false);
 
   // Gauge geometry
   const cx = 150;
@@ -22,23 +22,45 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
   // Scale: 0 to max (target * 1.2 so target isn't pegged at the end)
   const max = Math.round(target * 1.2);
   const clamped = Math.min(calories, max);
-  const targetAngle = startAngle + (clamped / max) * sweep;
+  const finalAngle = startAngle + (clamped / max) * sweep;
 
-  // Animate: sweep to ~95% of meter capacity, then slowly settle to actual value
-  const overshootAngle = startAngle + 0.95 * sweep; // 95% of the arc
+  // Needle overshoot: 95% of the full meter, then settle to correct
+  const overshootAngle = startAngle + 0.95 * sweep;
+  const needleRotation =
+    needlePhase === "idle"
+      ? startAngle
+      : needlePhase === "overshoot"
+        ? overshootAngle
+        : finalAngle;
 
+  // Arc: semicircle path with stroke-dashoffset for smooth fill animation
+  const arcCircumference = Math.PI * radius; // half-circle length
+  const arcFillFraction = clamped / max;
+  const arcDashoffset = arcMounted
+    ? arcCircumference * (1 - arcFillFraction)
+    : arcCircumference; // fully hidden initially
+
+  // Animation sequence
   useEffect(() => {
-    setPhase("max");
-    setAnimatedAngle(overshootAngle);
+    // Frame 1: start needle overshoot
+    const raf = requestAnimationFrame(() => {
+      setNeedlePhase("overshoot");
+      setArcMounted(true);
+    });
+
+    // Frame 2: settle needle to correct value
     const t = setTimeout(() => {
-      setPhase("settle");
-      setAnimatedAngle(targetAngle);
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [targetAngle, overshootAngle]);
+      setNeedlePhase("settle");
+    }, 1800);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t);
+    };
+  }, []);
 
   // Generate tick marks
-  const majorTicks = 6; // 0, 500, 1000, 1500, 2000, 2500 etc.
+  const majorTicks = 6;
   const step = max / majorTicks;
   const ticks = [];
 
@@ -47,12 +69,10 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
     const angle = startAngle + (i / majorTicks) * sweep;
     const rad = (angle * Math.PI) / 180;
 
-    // Outer tick position
     const outerLen = radius + 2;
     const innerMajor = radius - 14;
     const innerMinor = radius - 8;
 
-    // Major tick
     ticks.push({
       x1: cx + outerLen * Math.cos(rad),
       y1: cy + outerLen * Math.sin(rad),
@@ -64,7 +84,6 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
       labelY: cy + (radius + 18) * Math.sin(rad),
     });
 
-    // Minor ticks between majors
     if (i < majorTicks) {
       for (let j = 1; j < 5; j++) {
         const minorAngle = startAngle + ((i + j / 5) / majorTicks) * sweep;
@@ -83,13 +102,7 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
     }
   }
 
-  // Needle endpoint
-  const needleRad = (animatedAngle * Math.PI) / 180;
-  const needleLen = radius - 20;
-  const nx = cx + needleLen * Math.cos(needleRad);
-  const ny = cy + needleLen * Math.sin(needleRad);
-
-  // Arc path for the scale
+  // Arc path for the background track
   const arcStart = {
     x: cx + radius * Math.cos((startAngle * Math.PI) / 180),
     y: cy + radius * Math.sin((startAngle * Math.PI) / 180),
@@ -107,10 +120,18 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
   const overTarget = calories > target;
   const pct = target > 0 ? Math.round((calories / target) * 100) : 0;
 
+  // Needle transition timing
+  const needleDuration =
+    needlePhase === "idle" ? "0ms" : needlePhase === "overshoot" ? "1600ms" : "3000ms";
+  const needleEasing =
+    needlePhase === "overshoot"
+      ? "cubic-bezier(0.22, 1, 0.36, 1)"
+      : "cubic-bezier(0.25, 0.1, 0.25, 1)";
+
   return (
     <div className="flex flex-col items-center">
       <svg viewBox="0 0 300 175" className="w-full max-w-[280px]">
-        {/* Arc track */}
+        {/* Arc track (background) */}
         <path
           d={`M ${arcStart.x} ${arcStart.y} A ${radius} ${radius} 0 0 1 ${arcEnd.x} ${arcEnd.y}`}
           fill="none"
@@ -118,21 +139,18 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
           strokeWidth="3"
         />
 
-        {/* Filled arc up to current value */}
+        {/* Filled arc — uses stroke-dashoffset for smooth animation */}
         {clamped > 0 && (
           <path
-            d={describeArc(cx, cy, radius, startAngle, animatedAngle)}
+            d={`M ${arcStart.x} ${arcStart.y} A ${radius} ${radius} 0 0 1 ${arcEnd.x} ${arcEnd.y}`}
             fill="none"
             stroke={overTarget ? "#f87171" : "var(--glow-indigo)"}
             strokeWidth="3"
             strokeLinecap="round"
-            className="transition-all"
+            strokeDasharray={arcCircumference}
+            strokeDashoffset={arcDashoffset}
             style={{
-              transitionDuration: phase === "max" ? "1000ms" : "2500ms",
-              transitionTimingFunction:
-                phase === "max"
-                  ? "cubic-bezier(0.22, 1, 0.36, 1)"
-                  : "cubic-bezier(0.25, 0.1, 0.25, 1)",
+              transition: "stroke-dashoffset 2s cubic-bezier(0.22, 1, 0.36, 1)",
             }}
           />
         )}
@@ -176,24 +194,24 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
           opacity="0.7"
         />
 
-        {/* Needle */}
-        <line
-          x1={cx}
-          y1={cy}
-          x2={nx}
-          y2={ny}
-          stroke={overTarget ? "#f87171" : "#f59e0b"}
-          strokeWidth="2"
-          strokeLinecap="round"
-          className="transition-all"
+        {/* Needle — uses CSS rotate transform for smooth arc motion */}
+        <g
           style={{
-            transitionDuration: phase === "max" ? "600ms" : "1200ms",
-            transitionTimingFunction:
-              phase === "max"
-                ? "cubic-bezier(0.22, 1, 0.36, 1)"
-                : "cubic-bezier(0.34, 1.56, 0.64, 1)",
+            transform: `rotate(${needleRotation}deg)`,
+            transformOrigin: `${cx}px ${cy}px`,
+            transition: `transform ${needleDuration} ${needleEasing}`,
           }}
-        />
+        >
+          <line
+            x1={cx}
+            y1={cy}
+            x2={cx + (radius - 20)}
+            y2={cy}
+            stroke={overTarget ? "#f87171" : "#f59e0b"}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </g>
 
         {/* Needle pivot */}
         <circle cx={cx} cy={cy} r="5" fill="oklch(0.3 0.015 265)" stroke="oklch(0.5 0 0)" strokeWidth="1.5" />
@@ -223,22 +241,4 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
       </p>
     </div>
   );
-}
-
-// Helper: describe an SVG arc path
-function describeArc(
-  cx: number,
-  cy: number,
-  r: number,
-  startAngle: number,
-  endAngle: number
-): string {
-  const startRad = (startAngle * Math.PI) / 180;
-  const endRad = (endAngle * Math.PI) / 180;
-  const x1 = cx + r * Math.cos(startRad);
-  const y1 = cy + r * Math.sin(startRad);
-  const x2 = cx + r * Math.cos(endRad);
-  const y2 = cy + r * Math.sin(endRad);
-  const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-  return `M ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 1 ${x2} ${y2}`;
 }
