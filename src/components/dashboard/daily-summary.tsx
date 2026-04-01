@@ -137,7 +137,7 @@ export function DailySummary({
         />
       </div>
 
-      <div className="relative space-y-4 rounded-2xl bg-[oklch(0.16_0.01_265)] px-4 py-4">
+      <div className="relative space-y-4 rounded-2xl bg-[oklch(0.16_0.01_265)] border-0 px-4 py-4">
         {/* Calories gauge */}
         {targetCalories ? (
           <div>
