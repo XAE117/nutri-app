@@ -48,10 +48,19 @@ export default function EntryDetailPage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
   const fetchEntry = useCallback(async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     const { data } = await supabase
       .from("food_logs")
       .select("*")
       .eq("id", params.id)
+      .eq("user_id", user.id)
       .single();
 
     if (data) {
@@ -90,7 +99,8 @@ export default function EntryDetailPage() {
         fiber_g: parseFloat(form.get("fiber_g") as string) || 0,
         verified: true,
       })
-      .eq("id", entry.id);
+      .eq("id", entry.id)
+      .eq("user_id", entry.user_id);
 
     if (!error) {
       setEditing(false);
@@ -103,7 +113,7 @@ export default function EntryDetailPage() {
     if (!entry) return;
     if (!confirm("Delete this entry?")) return;
 
-    await supabase.from("food_logs").delete().eq("id", entry.id);
+    await supabase.from("food_logs").delete().eq("id", entry.id).eq("user_id", entry.user_id);
     router.push("/");
     router.refresh();
   }

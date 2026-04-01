@@ -1,4 +1,4 @@
-const CACHE_NAME = "nutrilens-v9";
+const CACHE_NAME = "nutrilens-v10";
 const APP_SHELL = [
   "/",
   "/log",
@@ -75,10 +75,12 @@ self.addEventListener("activate", (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.map((key) => caches.delete(key)))
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key))
+        )
       )
-      .then(() => caches.open(CACHE_NAME))
-      .then((cache) => cache.addAll(APP_SHELL))
       .then(() => self.clients.claim())
   );
 });

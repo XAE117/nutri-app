@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { FoodEntryCard } from "@/components/food-log/food-entry-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 
 export default async function FoodLogPage() {
@@ -10,6 +11,10 @@ export default async function FoodLogPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  if (!user) {
+    redirect("/login");
+  }
+
   const today = new Date();
   const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString();
   const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString();
@@ -17,7 +22,7 @@ export default async function FoodLogPage() {
   const { data: entries } = await supabase
     .from("food_logs")
     .select("*")
-    .eq("user_id", user!.id)
+    .eq("user_id", user.id)
     .gte("logged_at", startOfDay)
     .lt("logged_at", endOfDay)
     .order("logged_at", { ascending: true });

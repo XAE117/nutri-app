@@ -35,12 +35,15 @@ export default function PhotoCapturePage() {
   );
 
   const handleRetake = useCallback(() => {
+    if (state.status === "captured" && state.preview) {
+      URL.revokeObjectURL(state.preview);
+    }
     setState({ status: "idle" });
     setHint("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, []);
+  }, [state]);
 
   const handleSubmit = useCallback(async () => {
     if (state.status !== "captured") return;
@@ -77,11 +80,13 @@ export default function PhotoCapturePage() {
           label: "Undo",
           onClick: async () => {
             const entryId = data.entry?.id;
-            if (!entryId) return;
+            const entryUserId = data.entry?.user_id;
+            if (!entryId || !entryUserId) return;
             const { error } = await supabase
               .from("food_logs")
               .delete()
-              .eq("id", entryId);
+              .eq("id", entryId)
+              .eq("user_id", entryUserId);
             if (error) {
               toast.error("Failed to undo");
             } else {

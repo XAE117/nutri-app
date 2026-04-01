@@ -17,20 +17,22 @@ export function CameraCapture({ onCapture, disabled }: CameraCaptureProps) {
       const file = e.target.files?.[0];
       if (!file) return;
 
-      // Show preview
+      // Revoke previous preview URL if any
+      if (preview) URL.revokeObjectURL(preview);
       const url = URL.createObjectURL(file);
       setPreview(url);
       onCapture(file);
     },
-    [onCapture]
+    [onCapture, preview]
   );
 
   const handleRetake = useCallback(() => {
+    if (preview) URL.revokeObjectURL(preview);
     setPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
-  }, []);
+  }, [preview]);
 
   return (
     <div className="flex flex-col items-center gap-4">
