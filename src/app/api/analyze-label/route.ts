@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60;
 
@@ -52,6 +53,17 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Rate limit: 10 label scans per hour per user
+  const { success: withinLimit } = rateLimit(`label:${user.id}`, 10, 1 / 360);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: "Too many scans — please wait a few minutes before trying again." },
+      { status: 429 }
+    );
+  }
+
+  console.log(`[analyze-label] user=${user.id.slice(0, 8)} ts=${new Date().toISOString()}`);
 
   try {
     const formData = await request.formData();

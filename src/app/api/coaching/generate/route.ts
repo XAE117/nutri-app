@@ -7,6 +7,7 @@ import { getSemanticState, refreshSemanticState } from "@/lib/ai/semantic-state"
 export const maxDuration = 60;
 import { getRecentEpisodes } from "@/lib/ai/memory";
 import { COACHING_SYSTEM_PROMPT, COACHING_REVIEW_TOOL } from "@/lib/ai/prompts";
+import { rateLimit } from "@/lib/rate-limit";
 
 const ReviewSchema = z.object({
   summary: z.string(),
@@ -30,6 +31,17 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Rate limit: 3 coaching reviews per day per user
+  const { success: withinLimit } = rateLimit(`coaching:${user.id}`, 3, 1 / 28800);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: "Too many review requests — try again later." },
+      { status: 429 }
+    );
+  }
+
+  console.log(`[coaching] user=${user.id.slice(0, 8)} ts=${new Date().toISOString()}`);
 
   try {
     // Calculate week range

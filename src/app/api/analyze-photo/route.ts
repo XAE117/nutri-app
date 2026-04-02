@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { analyzeFood } from "@/lib/ai/vision";
 import { getSemanticState } from "@/lib/ai/semantic-state";
 import { getRecentEpisodes, createMealEpisode, generateMealSummary } from "@/lib/ai/memory";
+import { rateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60;
 
@@ -15,6 +16,17 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  // Rate limit: 10 photo analyses per hour per user (refill ~1 every 6 min)
+  const { success: withinLimit } = rateLimit(`photo:${user.id}`, 10, 1 / 360);
+  if (!withinLimit) {
+    return NextResponse.json(
+      { error: "Too many analyses — please wait a few minutes before trying again." },
+      { status: 429 }
+    );
+  }
+
+  console.log(`[analyze-photo] user=${user.id.slice(0, 8)} ts=${new Date().toISOString()}`);
 
   try {
     const formData = await request.formData();
