@@ -135,21 +135,16 @@ export default async function DashboardPage() {
 
       {/* Food entries */}
       {logs.length === 0 ? (
-        <EmptyState
-          icon={
+        <Link href="/log/new/photo" className="flex flex-col items-center justify-center py-6 text-center group">
+          <div className="mb-2 text-muted-foreground/40 group-hover:text-muted-foreground/60 transition-colors">
             <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={0.75}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z" />
             </svg>
-          }
-          title="No entries yet today"
-          description="Snap a photo of your meal to get started"
-          action={
-            <Link href="/log/new/photo">
-              <Button size="sm">Take a food photo</Button>
-            </Link>
-          }
-        />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">Take a Photo</p>
+          <p className="mt-1 text-xs text-muted-foreground/60">No entries yet today</p>
+        </Link>
       ) : (
         <div className="space-y-2">
           {logs.map((entry) => (
