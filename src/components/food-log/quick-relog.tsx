@@ -35,7 +35,10 @@ export function QuickRelog({ meals }: QuickRelogProps) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      setSaving(null);
+      return;
+    }
 
     await supabase.from("food_logs").insert({
       user_id: user.id,

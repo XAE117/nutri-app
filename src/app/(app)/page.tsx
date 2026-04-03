@@ -8,8 +8,6 @@ import { QuickRelog } from "@/components/food-log/quick-relog";
 import { HowItWorksDialog } from "@/components/help/how-it-works-dialog";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { JaelHide } from "@/components/providers/jael-mode-provider";
-import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 

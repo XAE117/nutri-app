@@ -77,7 +77,13 @@ export default function LabelPage() {
     const { error: dbError } = await supabase.from("food_logs").insert({
       user_id: user.id,
       description: result.product_name,
-      meal_type: "snack",
+      meal_type: (() => {
+        const h = new Date().getHours();
+        if (h < 11) return "breakfast";
+        if (h < 15) return "lunch";
+        if (h < 20) return "dinner";
+        return "snack";
+      })(),
       items: [
         {
           name: result.product_name,
