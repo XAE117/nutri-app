@@ -64,7 +64,7 @@ self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
-  // Don't auto-skipWaiting; wait for message
+  self.skipWaiting();
 });
 
 // ──────────────────────────────────────────────
