@@ -117,7 +117,12 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
   const targetTickAngle = startAngle + targetFrac * sweep;
   const targetRad = (targetTickAngle * Math.PI) / 180;
 
+  // Adherence-neutral: passing the target is information, not a failure.
+  // We never paint the gauge alarm-red. Over-target simply shifts to a calm
+  // teal accent so the day reads as "logged," not "over budget."
   const overTarget = calories > target;
+  const arcColor = overTarget ? "var(--glow-teal)" : "var(--glow-indigo)";
+  const needleColor = overTarget ? "#5eead4" : "#f59e0b";
   const pct = target > 0 ? Math.round((calories / target) * 100) : 0;
 
   // Needle transition timing
@@ -144,7 +149,7 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
           <path
             d={`M ${arcStart.x} ${arcStart.y} A ${radius} ${radius} 0 0 1 ${arcEnd.x} ${arcEnd.y}`}
             fill="none"
-            stroke={overTarget ? "#f87171" : "var(--glow-indigo)"}
+            stroke={arcColor}
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={arcCircumference}
@@ -207,7 +212,7 @@ export function CalorieGauge({ calories, target }: CalorieGaugeProps) {
             y1={cy}
             x2={cx + (radius - 20)}
             y2={cy}
-            stroke={overTarget ? "#f87171" : "#f59e0b"}
+            stroke={needleColor}
             strokeWidth="2"
             strokeLinecap="round"
           />

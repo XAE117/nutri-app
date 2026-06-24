@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { ewmaSmooth, weightChangeRate } from "@/lib/tdee/ewma";
-import { estimateTDEE, mifflinStJeor } from "@/lib/tdee/energy-balance";
-import { interpolateWeight, averageCalories, type DayData } from "@/lib/tdee/imputation";
+import { mifflinStJeor } from "@/lib/tdee/energy-balance";
+import {
+  recencyWeightedTrend,
+  estimateAdaptiveTDEE,
+  adherenceNeutralTarget,
+  type DailyRecord,
+} from "@/lib/tdee/adaptive";
 
-export async function GET(request: Request) {
+export async function GET() {
   const supabase = await createClient();
   const {
     data: { user },
@@ -14,33 +18,40 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Fetch weight logs (last 60 days)
+  // Look back 60 days so the recency-weighted trend smoother is well past its
+  // transient and the back-solve has a representative window.
   const sixtyDaysAgo = new Date();
   sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+  const today = new Date().toISOString().slice(0, 10);
 
-  const [weightRes, goalsRes, foodRes] = await Promise.all([
+  const [weightRes, goalsRes, foodRes, prevSnapRes] = await Promise.all([
     supabase
       .from("weight_logs")
       .select("logged_at, weight_kg")
       .eq("user_id", user.id)
       .gte("logged_at", sixtyDaysAgo.toISOString().slice(0, 10))
       .order("logged_at", { ascending: true }),
-    supabase
-      .from("user_goals")
-      .select("*")
-      .eq("user_id", user.id)
-      .single(),
+    supabase.from("user_goals").select("*").eq("user_id", user.id).single(),
     supabase
       .from("food_logs")
       .select("logged_at, calories")
       .eq("user_id", user.id)
       .gte("logged_at", sixtyDaysAgo.toISOString())
       .order("logged_at", { ascending: true }),
+    // Most recent prior snapshot powers carry-forward through logging gaps.
+    supabase
+      .from("tdee_snapshots")
+      .select("estimated_tdee, snapshot_date")
+      .eq("user_id", user.id)
+      .lt("snapshot_date", today)
+      .order("snapshot_date", { ascending: false })
+      .limit(1),
   ]);
 
   const weights = weightRes.data ?? [];
   const goals = goalsRes.data;
   const foodLogs = foodRes.data ?? [];
+  const previousTDEE = prevSnapRes.data?.[0]?.estimated_tdee ?? null;
 
   if (weights.length < 2) {
     return NextResponse.json({
@@ -50,7 +61,7 @@ export async function GET(request: Request) {
     });
   }
 
-  // Build day-by-day data
+  // Aggregate logged intake per calendar day.
   const dailyCalories: Record<string, number> = {};
   for (const log of foodLogs) {
     const day = log.logged_at.slice(0, 10);
@@ -62,30 +73,22 @@ export async function GET(request: Request) {
     weightByDay[w.logged_at] = w.weight_kg;
   }
 
-  // Build array of all days in range
+  // Build a contiguous daily series. Missing weigh-ins -> null (interpolated
+  // by the smoother); missing intake -> null (excluded, never zero-filled).
   const startDate = new Date(weights[0].logged_at);
   const endDate = new Date(weights[weights.length - 1].logged_at);
-  const days: DayData[] = [];
+  const records: DailyRecord[] = [];
   for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
     const iso = d.toISOString().slice(0, 10);
-    days.push({
+    records.push({
       date: iso,
-      weight_kg: weightByDay[iso] ?? null,
-      calories_in: dailyCalories[iso] ?? null,
+      weightKg: weightByDay[iso] ?? null,
+      caloriesIn: dailyCalories[iso] ?? null,
     });
   }
 
-  // Impute + smooth
-  const interpolated = interpolateWeight(days);
-  const weightPoints = interpolated
-    .filter((d) => d.weight_kg !== null)
-    .map((d) => ({ date: d.date, weight_kg: d.weight_kg! }));
+  const trendPoints = recencyWeightedTrend(records);
 
-  const trendData = ewmaSmooth(weightPoints);
-  const changeRate = weightChangeRate(trendData);
-  const avgCal = averageCalories(interpolated);
-
-  // Mifflin-St Jeor estimate if we have profile data
   let mifflinEstimate: number | null = null;
   if (goals?.height_cm && goals?.age && goals?.sex) {
     const latestWeight = weights[weights.length - 1].weight_kg;
@@ -98,45 +101,65 @@ export async function GET(request: Request) {
     );
   }
 
-  if (changeRate === null || avgCal === null) {
+  const est = estimateAdaptiveTDEE(records, {
+    previousTDEE,
+    mifflinEstimate,
+  });
+
+  const weightData = trendPoints.map((p) => ({
+    date: p.date,
+    raw: p.rawWeightKg ?? p.trendWeightKg,
+    trend: p.trendWeightKg,
+  }));
+
+  if (!est) {
     return NextResponse.json({
-      tdee: mifflinEstimate ? { estimatedTDEE: mifflinEstimate, method: "mifflin", confidence: "low", energyDelta: 0 } : null,
+      tdee: null,
       message: "Not enough data for adaptive TDEE yet",
-      weightData: trendData,
+      weightData,
       mifflinEstimate,
     });
   }
 
-  const tdee = estimateTDEE({
-    avgCaloriesIn: avgCal,
-    weightChangeRateKgPerDay: changeRate,
-    daysOfData: days.length,
-    mifflinEstimate,
+  const avgCalories = Math.round(est.estimatedTDEE + est.energyDelta);
+
+  // Adherence-neutral daily target: a pure function of TDEE + goal rate.
+  // No rollover, no "make-up" for prior over-target days.
+  const goalRate =
+    (goals?.goal_rate_kg_per_week as number | undefined) ?? 0;
+  const { dailyTarget: recommendedDailyTarget } = adherenceNeutralTarget({
+    tdee: est.estimatedTDEE,
+    goalRateKgPerWeek: goalRate,
   });
 
-  // Save snapshot
-  const today = new Date().toISOString().slice(0, 10);
-  const latestTrend = trendData[trendData.length - 1];
-
+  // Persist a snapshot (also the seed for tomorrow's carry-forward).
+  const latestTrend = trendPoints[trendPoints.length - 1];
   await supabase.from("tdee_snapshots").upsert(
     {
       user_id: user.id,
       snapshot_date: today,
-      trend_weight_kg: latestTrend.trend,
-      raw_weight_kg: latestTrend.raw,
-      calories_in: avgCal,
-      estimated_tdee: tdee.estimatedTDEE,
-      weight_change_rate: changeRate,
-      energy_delta: tdee.energyDelta,
+      trend_weight_kg: latestTrend.trendWeightKg,
+      raw_weight_kg: latestTrend.rawWeightKg ?? latestTrend.trendWeightKg,
+      calories_in: avgCalories,
+      estimated_tdee: est.estimatedTDEE,
+      weight_change_rate: est.slopeKgPerDay ?? 0,
+      energy_delta: est.energyDelta,
     },
     { onConflict: "user_id,snapshot_date" }
   );
 
   return NextResponse.json({
-    tdee,
-    weightData: trendData,
+    tdee: {
+      estimatedTDEE: est.estimatedTDEE,
+      method: est.method,
+      confidence: est.confidence,
+      energyDelta: est.energyDelta,
+    },
+    weightData,
     mifflinEstimate,
-    avgCalories: avgCal,
-    daysOfData: days.length,
+    avgCalories,
+    daysOfData: records.length,
+    coverage: est.coverage,
+    recommendedDailyTarget,
   });
 }
